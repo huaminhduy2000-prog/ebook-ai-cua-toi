@@ -1,0 +1,133 @@
+/* Thiết lập cơ bản và phông chữ Roboto */
+body, html { 
+    margin: 0; 
+    padding: 0; 
+    height: 100%; 
+    font-family: 'Roboto', Arial, sans-serif; 
+    background-color: #f4f7f6; 
+}
+
+/* Container chính, đổ bóng chuyên nghiệp */
+.container { 
+    display: flex; 
+    height: 100vh; 
+    max-width: 1800px; 
+    margin: 0 auto; 
+    box-shadow: 0 4px 25px rgba(0,0,0,0.1); 
+    overflow: hidden; 
+    border-radius: 10px; 
+}
+
+/* === CỘT 1: EBOOK CANVA (PHIÊN BẢN "VỪA KHÍT") === */
+.ebook-container {
+    flex-basis: 70%; 
+    background-color: #fff;
+    padding: 0; /* Xóa padding để iframe vừa khít */
+    
+    /* DÙNG FLEX ĐỂ ÉP IFRAME VỪA KHÍT CHIỀU DỌC */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Class "fix" mới của chúng ta cho Iframe */
+.canva-iframe-fix {
+    width: 100%;
+    flex-grow: 1; /* Đây là "phép thuật": làm iframe lấp đầy không gian */
+    border: none;
+}
+
+/* Link branding của Canva (cho nó nằm ở đáy) */
+.canva-brand-link {
+    display: block;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    padding: 8px 0; /* Cho nó mỏng hơn 1 chút */
+    text-decoration: none;
+    flex-shrink: 0; /* Không bị co lại */
+    background-color: #f9f9f9;
+    border-top: 1px solid #eee;
+}
+.canva-brand-link:hover {
+    color: #1a73e8;
+}
+
+
+/* === CỘT 2: CHATBOX AI === */
+.chat-container {
+    flex-basis: 30%; 
+    display: flex;
+    flex-direction: column; 
+    background: #ffffff; 
+    border-left: 1px solid #e0e0e0; 
+}
+
+/* Tiêu đề "AI Trợ Giảng" */
+.chat-container h2 { 
+    text-align: center; 
+    padding: 18px;
+    margin: 0; 
+    background: #f9f9f9; 
+    font-size: 1.1em;
+    color: #1a73e8; 
+    font-weight: 700;
+    border-bottom: 1px solid #e0e0e0;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+/* Cửa sổ chat */
+#chat-window {
+    flex-grow: 1; 
+    padding: 20px;
+    overflow-y: auto; 
+    background-color: #fdfdfd;
+}
+/* Định dạng tin nhắn của AI */
+.ai-message {
+    background-color: #f1f3f4;
+    padding: 10px 14px;
+    border-radius: 18px 18px 18px 0; 
+    margin-bottom: 10px;
+    line-height: 1.5;
+    font-size: 0.95em;
+    max-width: 85%;
+    float: left;
+    clear: both;
+}
+
+/* Khu vực nhập liệu */
+#chat-input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+    background: #f9f9f9;
+    flex-shrink: 0; 
+}
+#user-input {
+    flex-grow: 1;
+    border: 1px solid #dcdcdc;
+    border-radius: 20px;
+    padding: 10px 15px;
+    font-size: 0.95em;
+}
+#user-input:focus {
+    outline: none;
+    border-color: #1a73e8;
+}
+
+#send-button {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 50%; 
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 18px; 
+}
+#send-button:hover {
+    background-color: #185abc;
+}
