@@ -7,51 +7,73 @@ body, html {
     background-color: #f4f7f6; 
 }
 
-/* Container chính, đổ bóng chuyên nghiệp */
+/* === HEADER === */
+.main-header {
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px; /* Thêm padding */
+    box-sizing: border-box; 
+    height: 60px; 
+}
+.logo {
+    font-size: 1.25em; 
+    font-weight: 700;
+    color: #333; 
+    letter-spacing: 1.5px; 
+    text-transform: uppercase; 
+    padding: 0 10px; 
+}
+.main-nav a {
+    margin-left: 25px; /* Giãn cách nav */
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    font-size: 0.95em;
+}
+.main-nav a:hover {
+    color: #1a73e8;
+}
+
+/* Container chính (trừ đi Header VÀ Footer) */
 .container { 
     display: flex; 
-    height: 100vh; 
+    /* Lấy 100% trừ đi 60px (header) và 40px (footer) */
+    height: calc(100vh - 100px); 
     max-width: 1800px; 
     margin: 0 auto; 
-    box-shadow: 0 4px 25px rgba(0,0,0,0.1); 
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08); 
     overflow: hidden; 
     border-radius: 10px; 
 }
 
-/* === CỘT 1: EBOOK CANVA (PHIÊN BẢN "VỪA KHÍT") === */
+/* === CỘT 1: EBOOK CANVA === */
 .ebook-container {
     flex-basis: 70%; 
     background-color: #fff;
-    padding: 0; /* Xóa padding để iframe vừa khít */
-    
-    /* DÙNG FLEX ĐỂ ÉP IFRAME VỪA KHÍT CHIỀU DỌC */
+    padding: 0;
     display: flex;
     flex-direction: column;
 }
-
-/* Class "fix" mới của chúng ta cho Iframe */
 .canva-iframe-fix {
     width: 100%;
-    flex-grow: 1; /* Đây là "phép thuật": làm iframe lấp đầy không gian */
+    flex-grow: 1;
     border: none;
 }
-
-/* Link branding của Canva (cho nó nằm ở đáy) */
 .canva-brand-link {
     display: block;
     text-align: center;
     font-size: 12px;
     color: #888;
-    padding: 8px 0; /* Cho nó mỏng hơn 1 chút */
+    padding: 8px 0;
     text-decoration: none;
-    flex-shrink: 0; /* Không bị co lại */
+    flex-shrink: 0;
     background-color: #f9f9f9;
     border-top: 1px solid #eee;
 }
-.canva-brand-link:hover {
-    color: #1a73e8;
-}
-
 
 /* === CỘT 2: CHATBOX AI === */
 .chat-container {
@@ -61,8 +83,6 @@ body, html {
     background: #ffffff; 
     border-left: 1px solid #e0e0e0; 
 }
-
-/* Tiêu đề "AI Trợ Giảng" */
 .chat-container h2 { 
     text-align: center; 
     padding: 18px;
@@ -75,28 +95,52 @@ body, html {
     letter-spacing: 0.5px;
     flex-shrink: 0;
 }
-
-/* Cửa sổ chat */
 #chat-window {
     flex-grow: 1; 
     padding: 20px;
     overflow-y: auto; 
     background-color: #fdfdfd;
+    display: flex;
+    flex-direction: column; 
+    gap: 10px; 
 }
-/* Định dạng tin nhắn của AI */
 .ai-message {
     background-color: #f1f3f4;
     padding: 10px 14px;
-    border-radius: 18px 18px 18px 0; 
-    margin-bottom: 10px;
+    border-radius: 18px 18px 18px 0;
     line-height: 1.5;
     font-size: 0.95em;
     max-width: 85%;
-    float: left;
-    clear: both;
+    align-self: flex-start;
 }
-
-/* Khu vực nhập liệu */
+.user-message {
+    background-color: #1a73e8;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 18px 18px 0 18px;
+    line-height: 1.5;
+    font-size: 0.95em;
+    max-width: 85%;
+    align-self: flex-end;
+}
+.typing-indicator { padding: 10px 14px; }
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #999;
+    margin: 0 2px;
+    animation: typing-blink 1.4s infinite both;
+}
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing-blink {
+    0% { opacity: 0.2; }
+    20% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
 #chat-input-area {
     display: flex;
     padding: 15px;
@@ -116,6 +160,7 @@ body, html {
     border-color: #1a73e8;
 }
 
+/* NÂNG CẤP 2: NÚT "GỬI" BẰNG ICON */
 #send-button {
     background-color: #1a73e8;
     color: white;
@@ -124,10 +169,68 @@ body, html {
     width: 40px;
     height: 40px;
     margin-left: 10px;
-    font-weight: bold;
     cursor: pointer;
-    font-size: 18px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s; /* Thêm hiệu ứng hover */
 }
 #send-button:hover {
     background-color: #185abc;
+}
+/* Căn chỉnh icon SVG bên trong nút Gửi */
+#send-button svg {
+    margin-left: 2px; /* Chỉnh 1 chút cho cân */
+}
+
+/* NÂNG CẤP 3: FOOTER (CHÂN TRANG) */
+.main-footer {
+    height: 40px;
+    background-color: #333;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85em;
+}
+.main-footer p {
+    margin: 0;
+}
+
+
+/* NÂNG CẤP 1: PHẢN HỒI TRÊN DI ĐỘNG (RẤT QUAN TRỌNG) */
+/* Áp dụng khi màn hình nhỏ hơn 768px */
+@media (max-width: 768px) {
+    
+    /* Cho Header thu gọn lại */
+    .main-header {
+        padding: 0 15px;
+        height: 50px;
+    }
+    .logo {
+        font-size: 1em;
+    }
+    .main-nav a {
+        margin-left: 10px;
+        font-size: 0.9em;
+    }
+
+    /* Cho .container xếp dọc (column) thay vì ngang (row) */
+    .container {
+        flex-direction: column;
+        height: calc(100vh - 90px); /* 100% trừ 50px (header) và 40px (footer) */
+        border-radius: 0;
+    }
+
+    /* Bắt 2 cột chiếm 100% chiều rộng */
+    .ebook-container {
+        flex-basis: 60%; /* Ebook chiếm 60% chiều cao */
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .chat-container {
+        flex-basis: 40%; /* Chatbox chiếm 40% chiều cao */
+        border-left: none;
+    }
 }
