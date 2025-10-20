@@ -1,57 +1,85 @@
-// File: api/chat.js
-// ĐÂY LÀ CODE CHẠY TRÊN MÁY CHỦ VERCEL (GỌI HUGGING FACE)
+// File: chat.js (in the ROOT directory)
+// Runs in the user's browser
 
-// Địa chỉ của mô hình AI nguồn mở chúng ta sẽ dùng
-const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+document.addEventListener("DOMContentLoaded", () => {
 
-// Đây là "người gác cổng"
-export default async function handler(req, res) {
+  const sendButton = document.getElementById("send-button");
+  const userInput = document.getElementById("user-input");
+  const chatWindow = document.getElementById("chat-window");
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (!sendButton || !userInput || !chatWindow) {
+      console.error("ERROR: Could not find essential chat elements (button, input, or window). Check IDs in index.html!");
+      return; 
   }
 
-  try {
-    const { question } = req.body;
-
-    if (!question) {
-      return res.status(400).json({ error: 'Question is required' });
+  sendButton.addEventListener("click", sendMessage);
+  userInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); 
+      sendMessage();
     }
+  });
 
-    // GỌI HUGGING FACE API
-    const response = await fetch(
-      MODEL_URL,
-      {
+  async function sendMessage() {
+    let question = userInput.value.trim(); 
+    if (question === "") return; 
+
+    addMessage(question, "user");
+    userInput.value = ""; 
+    showTypingIndicator(); 
+
+    try {
+      // Call the backend function located at /api/chat
+      const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Sử dụng "Chìa khóa" HF_TOKEN chúng ta đã giấu ở Vercel
-          'Authorization': `Bearer ${process.env.HF_TOKEN}` 
-        },
-        body: JSON.stringify({
-          inputs: `<s>[INST] ${question} (Please answer in 1-2 sentences in Vietnamese) [/INST]`
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question }) 
+      });
+
+      const data = await response.json(); 
+
+      if (!response.ok) {
+        // Display error message from the backend if available
+        throw new Error(data.answer || data.error || 'Network or AI server error.');
       }
-    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Hugging Face API error:", errorText);
-      return res.status(500).json({ answer: 'Xin lỗi, AI đang khởi động (cold start). Vui lòng thử lại sau 30 giây!' });
+      removeTypingIndicator(); 
+      addMessage(data.answer, "ai"); // Display the REAL AI answer
+
+    } catch (error) {
+      console.error("Error calling API:", error);
+      removeTypingIndicator(); 
+      addMessage(`Sorry, I encountered an issue: ${error.message}`, "ai");
     }
-
-    const jsonResponse = await response.json();
-    let rawAnswer = jsonResponse[0].generated_text;
-
-    // Dọn dẹp câu trả lời
-    let cleanAnswer = rawAnswer.split("[/INST]")[1]; 
-
-    res.status(200).json({ 
-        answer: cleanAnswer || "Xin lỗi, tôi không chắc làm thế nào để trả lời điều đó." 
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Đã xảy ra lỗi máy chủ nội bộ.' });
   }
-}
+
+  function addMessage(message, sender) {
+    const messageElement = document.createElement("p");
+    messageElement.className = sender === "user" ? "user-message" : "ai-message";
+    // Use textContent for user messages, allow basic HTML for AI (like line breaks)
+    if (sender === 'user') {
+        messageElement.textContent = message;
+    } else {
+         messageElement.innerHTML = message.replace(/\n/g, '<br>'); // Handle potential line breaks
+    }
+    chatWindow.appendChild(messageElement);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function showTypingIndicator() {
+    if (document.getElementById("typing-indicator")) return; 
+    const typingIndicator = document.createElement("p");
+    typingIndicator.className = "ai-message typing-indicator"; 
+    typingIndicator.id = "typing-indicator"; 
+    typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+    chatWindow.appendChild(typingIndicator);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const indicator = document.getElementById("typing-indicator");
+    if (indicator) {
+      chatWindow.removeChild(indicator);
+    }
+  }
+});
