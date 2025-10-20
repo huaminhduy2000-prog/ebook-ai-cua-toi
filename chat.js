@@ -1,57 +1,106 @@
-// File: api/chat.js
-// ĐÂY LÀ CODE CHẠY TRÊN MÁY CHỦ VERCEL (GỌI HUGGING FACE)
+// File: chat.js (ở thư mục GỐC)
+// ĐÂY LÀ CODE CHẠY TRÊN TRÌNH DUYỆT CỦA NGƯỜI DÙNG (GỌI /api/chat)
 
-// Địa chỉ của mô hình AI nguồn mở chúng ta sẽ dùng
-const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+// Chỉ chạy code khi toàn bộ HTML đã tải xong
+document.addEventListener("DOMContentLoaded", () => {
 
-// Đây là "người gác cổng"
-export default async function handler(req, res) {
+  // 1. LẤY LINH KIỆN TỪ HTML
+  const sendButton = document.getElementById("send-button");
+  const userInput = document.getElementById("user-input");
+  const chatWindow = document.getElementById("chat-window");
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  // Kiểm tra xem có tìm thấy nút không (để bắt lỗi)
+  if (!sendButton) {
+      console.error("LỖI: Không tìm thấy 'send-button'. Kiểm tra ID trong file index.html!");
+      return; 
+  }
+  if (!userInput) {
+      console.error("LỖI: Không tìm thấy 'user-input'.");
+      return;
+  }
+  if (!chatWindow) {
+      console.error("LỖI: Không tìm thấy 'chat-window'.");
+      return;
   }
 
-  try {
-    const { question } = req.body;
+  // 2. NỐI DÂY ĐIỆN CHO NÚT GỬI
+  sendButton.addEventListener("click", sendMessage);
 
-    if (!question) {
-      return res.status(400).json({ error: 'Question is required' });
+  // 3. NỐI DÂY ĐIỆN CHO PHÍM ENTER
+  userInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); 
+      sendMessage();
     }
+  });
 
-    // GỌI HUGGING FACE API
-    const response = await fetch(
-      MODEL_URL,
-      {
+  // 4. HÀM GỬI TIN NHẮN (GỌI AI THẬT QUA /api/chat)
+  async function sendMessage() {
+    let question = userInput.value.trim(); 
+    if (question === "") return; 
+
+    addMessage(question, "user");
+    userInput.value = ""; 
+
+    showTypingIndicator(); // Hiển thị "..."
+
+    try {
+      // GỌI "NGƯỜI GÁC CỔNG" (file /api/chat.js)
+      const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Sử dụng "Chìa khóa" HF_TOKEN chúng ta đã giấu ở Vercel
-          'Authorization': `Bearer ${process.env.HF_TOKEN}` 
-        },
-        body: JSON.stringify({
-          inputs: `<s>[INST] ${question} (Please answer in 1-2 sentences in Vietnamese) [/INST]`
-        }),
-      }
-    );
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question }) // Gửi đi {"question": "..."}
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Hugging Face API error:", errorText);
-      return res.status(500).json({ answer: 'Xin lỗi, AI đang khởi động (cold start). Vui lòng thử lại sau 30 giây!' });
+      const data = await response.json(); 
+
+      if (!response.ok) {
+        throw new Error(data.answer || 'Lỗi mạng hoặc máy chủ AI.');
+      }
+
+      removeTypingIndicator(); // Xóa "..."
+      addMessage(data.answer, "ai"); // Hiển thị câu trả lời THẬT
+
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+      removeTypingIndicator(); 
+      addMessage(`Xin lỗi, tôi đang gặp sự cố: ${error.message}`, "ai");
+    }
+  }
+
+  // 5. HÀM THÊM TIN NHẮN VÀO CỬA SỔ
+  function addMessage(message, sender) {
+    const messageElement = document.createElement("p");
+
+    if (sender === "user") {
+      messageElement.className = "user-message";
+    } else {
+      messageElement.className = "ai-message";
     }
 
-    const jsonResponse = await response.json();
-    let rawAnswer = jsonResponse[0].generated_text;
-
-    // Dọn dẹp câu trả lời
-    let cleanAnswer = rawAnswer.split("[/INST]")[1]; 
-
-    res.status(200).json({ 
-        answer: cleanAnswer || "Xin lỗi, tôi không chắc làm thế nào để trả lời điều đó." 
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Đã xảy ra lỗi máy chủ nội bộ.' });
+    messageElement.innerHTML = message.replace(/\n/g, '<br>'); 
+    chatWindow.appendChild(messageElement);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
   }
-}
+
+  // 6. HÀM HIỂN THỊ "ĐANG GÕ..."
+  function showTypingIndicator() {
+    // Kiểm tra xem indicator đã tồn tại chưa, nếu có thì không thêm nữa
+    if (document.getElementById("typing-indicator")) return; 
+
+    const typingIndicator = document.createElement("p");
+    typingIndicator.className = "ai-message typing-indicator"; 
+    typingIndicator.id = "typing-indicator"; 
+    typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+    chatWindow.appendChild(typingIndicator);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  // 7. HÀM XÓA "ĐANG GÕ..."
+  function removeTypingIndicator() {
+    const indicator = document.getElementById("typing-indicator");
+    if (indicator) {
+      chatWindow.removeChild(indicator);
+    }
+  }
+}); // Kết thúc addEventListener("DOMContentLoaded", ...)
