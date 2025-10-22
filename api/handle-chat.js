@@ -31,10 +31,9 @@ export default async function handler(req, res) {
           // Lấy Token bí mật đã lưu trên Vercel
           'Authorization': `Bearer ${process.env.HF_TOKEN}`
         },
-        body: JSON.stringify({
-          // Định dạng câu hỏi cho mô hình Mistral Instruct
-          // Yêu cầu trả lời bằng tiếng Việt, ngắn gọn
-          inputs: `<s>[INST] ${question} (Please answer in 1-2 sentences in Vietnamese) [/INST]`
+       body: JSON.stringify({
+          // Định dạng inputs đơn giản cho Flan-T5
+          inputs: question 
         }),
       }
     );
@@ -54,11 +53,7 @@ export default async function handler(req, res) {
     // Lấy kết quả JSON từ Hugging Face
     const jsonResponse = await response.json();
 
-    // Trích xuất phần văn bản được tạo ra
-    let rawAnswer = jsonResponse[0].generated_text;
-
-    // Dọn dẹp câu trả lời (bỏ phần câu hỏi lặp lại)
-    let cleanAnswer = rawAnswer.split("[/INST]")[1];
+   let cleanAnswer = jsonResponse[0].generated_text; // Flan-T5 trả về trực tiếp
 
     // Trả câu trả lời về cho giao diện (frontend)
     res.status(200).json({
