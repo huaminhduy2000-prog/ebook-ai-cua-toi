@@ -39,12 +39,17 @@ export default async function handler(req, res) {
       }
     );
 
-    // Xử lý nếu Hugging Face trả về lỗi (ví dụ: mô hình đang khởi động)
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Hugging Face API error:", errorText);
-      return res.status(500).json({ answer: 'Xin lỗi, AI đang khởi động (cold start). Vui lòng thử lại sau 30 giây!' });
-    }
+   // Xử lý nếu Hugging Face trả về lỗi (ví dụ: mô hình đang khởi động)
+        if (!response.ok) {
+          // === CODE MỚI ĐỂ GHI LOG CHI TIẾT ===
+          const statusCode = response.status; // Lấy mã trạng thái (ví dụ: 404)
+          const errorText = await response.text(); // Lấy NỘI DUNG trang lỗi
+          console.error(`Hugging Face API Error: Status ${statusCode}`, errorText); // Ghi lại cả hai
+          // === KẾT THÚC CODE MỚI ===
+
+          // Trả về lỗi thân thiện cho người dùng (vẫn giữ nguyên)
+          return res.status(500).json({ answer: `Xin lỗi, có lỗi từ máy chủ AI (Status: ${statusCode}). Vui lòng thử lại sau!` });
+        }
 
     // Lấy kết quả JSON từ Hugging Face
     const jsonResponse = await response.json();
