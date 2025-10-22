@@ -1,85 +1,68 @@
-// File: chat.js (in the ROOT directory)
-// Runs in the user's browser
+// File: api/chat.js
+// CODE NÀY CHẠY TRÊN MÁY CHỦ VERCEL (GỌI HUGGING FACE)
 
-document.addEventListener("DOMContentLoaded", () => {
+// Địa chỉ của mô hình AI nguồn mở
+const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
 
-  const sendButton = document.getElementById("send-button");
-  const userInput = document.getElementById("user-input");
-  const chatWindow = document.getElementById("chat-window");
+// Hàm xử lý chính (Serverless Function)
+export default async function handler(req, res) {
 
-  if (!sendButton || !userInput || !chatWindow) {
-      console.error("ERROR: Could not find essential chat elements (button, input, or window). Check IDs in index.html!");
-      return; 
+  // Chỉ chấp nhận yêu cầu POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  sendButton.addEventListener("click", sendMessage);
-  userInput.addEventListener("keypress", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault(); 
-      sendMessage();
+  try {
+    // Lấy câu hỏi từ yêu cầu gửi lên
+    const { question } = req.body;
+
+    // Kiểm tra xem có câu hỏi không
+    if (!question) {
+      return res.status(400).json({ error: 'Question is required' });
     }
-  });
 
-  async function sendMessage() {
-    let question = userInput.value.trim(); 
-    if (question === "") return; 
-
-    addMessage(question, "user");
-    userInput.value = ""; 
-    showTypingIndicator(); 
-
-    try {
-      // Call the backend function located at /api/chat
-      const response = await fetch('/api/chat', {
+    // Gọi API của Hugging Face
+    const response = await fetch(
+      MODEL_URL,
+      {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question }) 
-      });
-
-      const data = await response.json(); 
-
-      if (!response.ok) {
-        // Display error message from the backend if available
-        throw new Error(data.answer || data.error || 'Network or AI server error.');
+        headers: {
+          'Content-Type': 'application/json',
+          // Lấy Token bí mật đã lưu trên Vercel
+          'Authorization': `Bearer ${process.env.HF_TOKEN}`
+        },
+        body: JSON.stringify({
+          // Định dạng câu hỏi cho mô hình Mistral Instruct
+          // Yêu cầu trả lời bằng tiếng Việt, ngắn gọn
+          inputs: `<s>[INST] ${question} (Please answer in 1-2 sentences in Vietnamese) [/INST]`
+        }),
       }
+    );
 
-      removeTypingIndicator(); 
-      addMessage(data.answer, "ai"); // Display the REAL AI answer
-
-    } catch (error) {
-      console.error("Error calling API:", error);
-      removeTypingIndicator(); 
-      addMessage(`Sorry, I encountered an issue: ${error.message}`, "ai");
+    // Xử lý nếu Hugging Face trả về lỗi (ví dụ: mô hình đang khởi động)
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Hugging Face API error:", errorText);
+      return res.status(500).json({ answer: 'Xin lỗi, AI đang khởi động (cold start). Vui lòng thử lại sau 30 giây!' });
     }
-  }
 
-  function addMessage(message, sender) {
-    const messageElement = document.createElement("p");
-    messageElement.className = sender === "user" ? "user-message" : "ai-message";
-    // Use textContent for user messages, allow basic HTML for AI (like line breaks)
-    if (sender === 'user') {
-        messageElement.textContent = message;
-    } else {
-         messageElement.innerHTML = message.replace(/\n/g, '<br>'); // Handle potential line breaks
-    }
-    chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
+    // Lấy kết quả JSON từ Hugging Face
+    const jsonResponse = await response.json();
 
-  function showTypingIndicator() {
-    if (document.getElementById("typing-indicator")) return; 
-    const typingIndicator = document.createElement("p");
-    typingIndicator.className = "ai-message typing-indicator"; 
-    typingIndicator.id = "typing-indicator"; 
-    typingIndicator.innerHTML = "<span></span><span></span><span></span>";
-    chatWindow.appendChild(typingIndicator);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-  }
+    // Trích xuất phần văn bản được tạo ra
+    let rawAnswer = jsonResponse[0].generated_text;
 
-  function removeTypingIndicator() {
-    const indicator = document.getElementById("typing-indicator");
-    if (indicator) {
-      chatWindow.removeChild(indicator);
-    }
+    // Dọn dẹp câu trả lời (bỏ phần câu hỏi lặp lại)
+    let cleanAnswer = rawAnswer.split("[/INST]")[1];
+
+    // Trả câu trả lời về cho giao diện (frontend)
+    res.status(200).json({
+      answer: cleanAnswer || "Xin lỗi, tôi không chắc làm thế nào để trả lời điều đó."
+    });
+
+  } catch (error) {
+    // Xử lý lỗi chung của máy chủ
+    console.error(error);
+    res.status(500).json({ error: 'Đã xảy ra lỗi máy chủ nội bộ.' });
   }
-});
+}
