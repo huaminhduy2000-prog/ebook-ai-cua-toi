@@ -1,68 +1,96 @@
-// File: api/chat.js
-// CODE NÀY CHẠY TRÊN MÁY CHỦ VERCEL (GỌI HUGGING FACE)
+// File: chat.js (in the ROOT directory)
+// Runs in the user's browser
 
-// Địa chỉ của mô hình AI nguồn mở
-const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+document.addEventListener("DOMContentLoaded", () => {
 
-// Hàm xử lý chính (Serverless Function)
-export default async function handler(req, res) {
+  const sendButton = document.getElementById("send-button");
+  const userInput = document.getElementById("user-input");
+  const chatWindow = document.getElementById("chat-window");
 
-  // Chỉ chấp nhận yêu cầu POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  // Error checking: Ensure HTML elements exist
+  if (!sendButton || !userInput || !chatWindow) {
+      console.error("ERROR: Could not find essential chat elements (button, input, or window). Check IDs in index.html!");
+      return;
   }
 
-  try {
-    // Lấy câu hỏi từ yêu cầu gửi lên
-    const { question } = req.body;
-
-    // Kiểm tra xem có câu hỏi không
-    if (!question) {
-      return res.status(400).json({ error: 'Question is required' });
+  // Attach event listener for the Send button click
+  sendButton.addEventListener("click", sendMessage);
+  // Attach event listener for the Enter key press in the input field
+  userInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent default Enter behavior (like adding a new line)
+      sendMessage();
     }
+  });
 
-    // Gọi API của Hugging Face
-    const response = await fetch(
-      MODEL_URL,
-      {
+  // Function to handle sending the message
+  async function sendMessage() {
+    let question = userInput.value.trim();
+    if (question === "") return; // Don't send empty messages
+
+    addMessage(question, "user"); // Display user's message
+    userInput.value = ""; // Clear the input field
+    showTypingIndicator(); // Show the "..." indicator
+
+    try {
+      // Call the backend API endpoint (RENAMED)
+      const response = await fetch('/api/handle-chat', { // <-- Calls the renamed endpoint
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Lấy Token bí mật đã lưu trên Vercel
-          'Authorization': `Bearer ${process.env.HF_TOKEN}`
-        },
-        body: JSON.stringify({
-          // Định dạng câu hỏi cho mô hình Mistral Instruct
-          // Yêu cầu trả lời bằng tiếng Việt, ngắn gọn
-          inputs: `<s>[INST] ${question} (Please answer in 1-2 sentences in Vietnamese) [/INST]`
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question }) // Send {"question": "..."}
+      });
+
+      const data = await response.json(); // Get back {"answer": "..."} or {"error": "..."}
+
+      // Handle potential errors returned by the backend
+      if (!response.ok) {
+        throw new Error(data.answer || data.error || 'Network or AI server error.');
       }
-    );
 
-    // Xử lý nếu Hugging Face trả về lỗi (ví dụ: mô hình đang khởi động)
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Hugging Face API error:", errorText);
-      return res.status(500).json({ answer: 'Xin lỗi, AI đang khởi động (cold start). Vui lòng thử lại sau 30 giây!' });
+      removeTypingIndicator(); // Remove the "..." indicator
+      addMessage(data.answer, "ai"); // Display the REAL AI answer
+
+    } catch (error) {
+      console.error("Error calling API:", error);
+      removeTypingIndicator(); // Still remove indicator if there's an error
+      // Display the error message in the chat window
+      addMessage(`Sorry, I encountered an issue: ${error.message}`, "ai");
     }
-
-    // Lấy kết quả JSON từ Hugging Face
-    const jsonResponse = await response.json();
-
-    // Trích xuất phần văn bản được tạo ra
-    let rawAnswer = jsonResponse[0].generated_text;
-
-    // Dọn dẹp câu trả lời (bỏ phần câu hỏi lặp lại)
-    let cleanAnswer = rawAnswer.split("[/INST]")[1];
-
-    // Trả câu trả lời về cho giao diện (frontend)
-    res.status(200).json({
-      answer: cleanAnswer || "Xin lỗi, tôi không chắc làm thế nào để trả lời điều đó."
-    });
-
-  } catch (error) {
-    // Xử lý lỗi chung của máy chủ
-    console.error(error);
-    res.status(500).json({ error: 'Đã xảy ra lỗi máy chủ nội bộ.' });
   }
-}
+
+  // Function to add a message bubble to the chat window
+  function addMessage(message, sender) {
+    const messageElement = document.createElement("p");
+    messageElement.className = sender === "user" ? "user-message" : "ai-message";
+    // Use textContent for user messages (safer)
+    // Use innerHTML for AI messages to handle line breaks (\n -> <br>)
+    if (sender === 'user') {
+        messageElement.textContent = message;
+    } else {
+         messageElement.innerHTML = message.replace(/\n/g, '<br>');
+    }
+    chatWindow.appendChild(messageElement);
+    // Automatically scroll to the latest message
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  // Function to display the typing indicator
+  function showTypingIndicator() {
+    // Only add if it doesn't already exist
+    if (document.getElementById("typing-indicator")) return;
+    const typingIndicator = document.createElement("p");
+    typingIndicator.className = "ai-message typing-indicator";
+    typingIndicator.id = "typing-indicator";
+    typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+    chatWindow.appendChild(typingIndicator);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  // Function to remove the typing indicator
+  function removeTypingIndicator() {
+    const indicator = document.getElementById("typing-indicator");
+    if (indicator) {
+      chatWindow.removeChild(indicator);
+    }
+  }
+}); // End DOMContentLoaded
