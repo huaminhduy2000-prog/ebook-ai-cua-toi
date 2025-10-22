@@ -2,7 +2,7 @@
 // CODE NÀY CHẠY TRÊN MÁY CHỦ VERCEL (GỌI HUGGING FACE)
 
 // Địa chỉ của mô hình AI nguồn mở
-const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"; // Sửa v0.2 thành v0.1
+const MODEL_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"; // Thử dùng Mixtral
 
 // Hàm xử lý chính (Serverless Function)
 export default async function handler(req, res) {
