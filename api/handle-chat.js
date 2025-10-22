@@ -2,7 +2,7 @@
 // CODE NÀY CHẠY TRÊN MÁY CHỦ VERCEL (GỌI HUGGING FACE)
 
 // Địa chỉ của mô hình AI nguồn mở
-const MODEL_URL = "https://api-inference.huggingface.co/models/gpt2"; // <-- Dùng model GPT-2 đơn giản để TEST
+const MODEL_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"; // <-- Thử model Flan-T5
 
 // Hàm xử lý chính (Serverless Function)
 export default async function handler(req, res) {
