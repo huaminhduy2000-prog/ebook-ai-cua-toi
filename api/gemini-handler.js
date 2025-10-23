@@ -22,9 +22,8 @@ export default async function handler(req, res) {
     if (!question) {
       return res.status(400).json({ error: 'Question is required' });
     }
-
-    // Chọn model gemini-pro và áp dụng cấu hình an toàn
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", safetySettings }); // Thử lại flash
+   // Chọn model (thử gemini-2.0-flash-lite)
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" }); // <-- Đổi sang flash-lite mới
 
     // Gọi Gemini
     const result = await model.generateContent(question);
