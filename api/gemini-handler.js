@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     }
 
     // Chọn model gemini-pro và áp dụng cấu hình an toàn
-const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro", safetySettings }); // <-- Đổi sang gemini-1.0-pro
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", safetySettings }); // Thử lại flash
 
     // Gọi Gemini
     const result = await model.generateContent(question);
