@@ -1,82 +1,87 @@
-// File: chat.js (in the ROOT directory)
-// Runs in the user's browser
+// File: chat.js (ở thư mục GỐC)
+// CODE NÀY CHẠY TRÊN TRÌNH DUYỆT (GỌI /api/gemini-handler)
 
+// Chỉ chạy code khi toàn bộ HTML đã tải xong
 document.addEventListener("DOMContentLoaded", () => {
-
+    
+  // 1. LẤY LINH KIỆN TỪ HTML
   const sendButton = document.getElementById("send-button");
   const userInput = document.getElementById("user-input");
   const chatWindow = document.getElementById("chat-window");
 
-  // Error checking: Ensure HTML elements exist
+  // Kiểm tra lỗi nếu không tìm thấy phần tử HTML
   if (!sendButton || !userInput || !chatWindow) {
-      console.error("ERROR: Could not find essential chat elements (button, input, or window). Check IDs in index.html!");
-      return;
+      console.error("LỖI: Không tìm thấy nút gửi, ô nhập, hoặc cửa sổ chat. Kiểm tra lại ID trong index.html!");
+      return; 
   }
 
-  // Attach event listener for the Send button click
+  // 2. NỐI DÂY ĐIỆN CHO NÚT GỬI
   sendButton.addEventListener("click", sendMessage);
-  // Attach event listener for the Enter key press in the input field
+
+  // 3. NỐI DÂY ĐIỆN CHO PHÍM ENTER
   userInput.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
-      event.preventDefault(); // Prevent default Enter behavior (like adding a new line)
+      event.preventDefault(); // Ngăn Enter tạo dòng mới
       sendMessage();
     }
   });
 
-  // Function to handle sending the message
+  // 4. HÀM GỬI TIN NHẮN (ĐÃ CẬP NHẬT ĐỂ GỌI /api/gemini-handler)
   async function sendMessage() {
-    let question = userInput.value.trim();
-    if (question === "") return; // Don't send empty messages
+    let question = userInput.value.trim(); 
+    if (question === "") return; 
 
-    addMessage(question, "user"); // Display user's message
-    userInput.value = ""; // Clear the input field
-    showTypingIndicator(); // Show the "..." indicator
+    addMessage(question, "user"); // Hiển thị tin nhắn người dùng
+    userInput.value = ""; // Xóa ô nhập
+    showTypingIndicator(); // Hiển thị dấu "..."
 
     try {
-      // Call the backend API endpoint (RENAMED)
-      const response = await fetch('/api/handle-chat', { // <-- Calls the renamed endpoint
+      // GỌI "BỘ NÃO" GEMINI MỚI TẠI /api/gemini-handler
+      const response = await fetch('/api/gemini-handler', { // <-- ĐÃ SỬA ĐƯỜNG DẪN
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question }) // Send {"question": "..."}
+        body: JSON.stringify({ question: question }) // Gửi đi {"question": "..."}
       });
 
-      const data = await response.json(); // Get back {"answer": "..."} or {"error": "..."}
+      const data = await response.json(); // Nhận về {"answer": "..."} hoặc {"error": "..."}
 
-      // Handle potential errors returned by the backend
+      // Nếu backend trả về lỗi
       if (!response.ok) {
-        throw new Error(data.answer || data.error || 'Network or AI server error.');
+        // Ưu tiên hiển thị lỗi cụ thể từ backend nếu có
+        throw new Error(data.error || 'Lỗi mạng hoặc máy chủ AI.'); 
       }
-
-      removeTypingIndicator(); // Remove the "..." indicator
-      addMessage(data.answer, "ai"); // Display the REAL AI answer
+      
+      removeTypingIndicator(); // Xóa dấu "..."
+      addMessage(data.answer, "ai"); // Hiển thị câu trả lời THẬT từ Gemini
 
     } catch (error) {
-      console.error("Error calling API:", error);
-      removeTypingIndicator(); // Still remove indicator if there's an error
-      // Display the error message in the chat window
-      addMessage(`Sorry, I encountered an issue: ${error.message}`, "ai");
+      console.error("Lỗi khi gọi API:", error);
+      removeTypingIndicator(); // Vẫn xóa dấu "..." nếu có lỗi
+      // Hiển thị lỗi ra chatbox
+      addMessage(`Xin lỗi, đã xảy ra sự cố: ${error.message}`, "ai");
     }
   }
 
-  // Function to add a message bubble to the chat window
+  // 5. HÀM THÊM TIN NHẮN VÀO CỬA SỔ
   function addMessage(message, sender) {
     const messageElement = document.createElement("p");
     messageElement.className = sender === "user" ? "user-message" : "ai-message";
-    // Use textContent for user messages (safer)
-    // Use innerHTML for AI messages to handle line breaks (\n -> <br>)
+    // Dùng textContent cho tin nhắn người dùng (an toàn hơn)
+    // Dùng innerHTML cho tin nhắn AI để xử lý xuống dòng (\n -> <br>)
     if (sender === 'user') {
         messageElement.textContent = message;
     } else {
-         messageElement.innerHTML = message.replace(/\n/g, '<br>');
+         // Kiểm tra message có tồn tại không trước khi replace
+         messageElement.innerHTML = message ? message.replace(/\n/g, '<br>') : '';
     }
     chatWindow.appendChild(messageElement);
-    // Automatically scroll to the latest message
+    // Tự động cuộn xuống tin nhắn mới nhất
     chatWindow.scrollTop = chatWindow.scrollHeight;
   }
 
-  // Function to display the typing indicator
+  // 6. HÀM HIỂN THỊ "ĐANG GÕ..."
   function showTypingIndicator() {
-    // Only add if it doesn't already exist
+    // Chỉ thêm nếu chưa có
     if (document.getElementById("typing-indicator")) return;
     const typingIndicator = document.createElement("p");
     typingIndicator.className = "ai-message typing-indicator";
@@ -86,11 +91,11 @@ document.addEventListener("DOMContentLoaded", () => {
     chatWindow.scrollTop = chatWindow.scrollHeight;
   }
 
-  // Function to remove the typing indicator
+  // 7. HÀM XÓA "ĐANG GÕ..."
   function removeTypingIndicator() {
     const indicator = document.getElementById("typing-indicator");
     if (indicator) {
       chatWindow.removeChild(indicator);
     }
   }
-}); // End DOMContentLoaded
+}); // Kết thúc DOMContentLoaded
