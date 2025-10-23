@@ -38,21 +38,21 @@ body, html {
     color: #1a73e8;
 }
 
-/* Container chính (trừ đi Header VÀ Footer) */
+/* === CONTAINER CHÍNH (Chỉ còn 1 cột Ebook) === */
 .container {
-    display: flex;
-    height: calc(100vh - 100px); /* 100% trừ 60px (header) và 40px (footer) */
+    display: block; /* Chỉ là block bình thường */
+    height: calc(100vh - 100px); /* Vẫn trừ header và footer */
     max-width: 1800px;
     margin: 0 auto;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08);
     overflow: hidden;
     border-radius: 10px;
+    background-color: #fff;
 }
 
-/* === CỘT 1: EBOOK CANVA === */
+/* === KHU VỰC EBOOK === */
 .ebook-container {
-    flex-basis: 70%;
-    background-color: #fff;
+    height: 100%;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -74,43 +74,119 @@ body, html {
     border-top: 1px solid #eee;
 }
 
-/* === CỘT 2: CHATBOX AI (Phong cách Bubble) === */
-.chat-container {
-    flex-basis: 30%;
-    display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    border-left: 1px solid #e0e0e0;
-    position: relative;
-}
-.chat-container h2 {
-    text-align: center;
-    padding: 18px;
-    margin: 0;
-    background: #f0f2f5; /* Nền header nhẹ nhàng */
-    font-size: 1.1em;
-    color: #1c1e21; /* Chữ đậm hơn */
-    font-weight: 600;
-    border-bottom: 1px solid #e0e0e0;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
+/* === WIDGET BONG BÓNG CHAT NỔI === */
+:root {
+    --chat-primary-color: #0084ff; /* Màu xanh Facebook */
+    --chat-bubble-size: 55px;
+    --chatbox-width: 320px;
+    --chatbox-height: 400px;
+    --chat-offset: 25px;
 }
 
-/* Khu vực hiển thị tin nhắn */
+#ai-chat-widget {
+    position: fixed;
+    bottom: var(--chat-offset);
+    right: var(--chat-offset);
+    z-index: 1000;
+}
+
+#ai-chat-bubble {
+    width: var(--chat-bubble-size);
+    height: var(--chat-bubble-size);
+    background-color: var(--chat-primary-color);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, opacity 0.3s ease-out; /* Thêm opacity transition */
+    outline: none;
+}
+#ai-chat-bubble:hover {
+    transform: scale(1.1);
+}
+#ai-chat-bubble svg {
+    width: 50%;
+    height: 50%;
+    fill: white;
+}
+
+#ai-chat-box {
+    width: var(--chatbox-width);
+    height: var(--chatbox-height);
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+    position: absolute;
+    bottom: calc(var(--chat-bubble-size) + 10px);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0s linear 0.25s; /* Delay visibility */
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Khi widget mở */
+#ai-chat-widget.chat-open #ai-chat-box {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0s linear 0s; /* Bỏ delay visibility */
+}
+#ai-chat-widget.chat-open #ai-chat-bubble {
+     /* Ẩn bong bóng khi chat mở */
+     opacity: 0;
+     transform: scale(0.8);
+     pointer-events: none; /* Không cho click vào bong bóng ẩn */
+}
+
+/* Header của Chatbox */
+.ai-chat-header {
+    background-color: var(--chat-primary-color);
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+.ai-chat-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+#ai-chat-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    opacity: 0.8;
+}
+#ai-chat-close-btn:hover { opacity: 1; }
+
+/* Khu vực tin nhắn (Phong cách Bubble) */
 .chat-messages-area { /* Class này cho #chat-window */
     flex-grow: 1;
     padding: 10px 15px;
     overflow-y: auto;
-    background-color: #f0f2f5; /* Nền chatbox xám nhạt */
+    background-color: #f0f2f5;
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Khoảng cách giữa các bubble */
+    gap: 8px;
 }
-
-/* Styling chung cho bubble */
 .ai-message, .user-message {
     padding: 10px 14px;
-    border-radius: 18px; /* Bo góc tròn */
+    border-radius: 18px;
     line-height: 1.4;
     font-size: 0.9em;
     max-width: 85%;
@@ -118,22 +194,18 @@ body, html {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
     position: relative;
 }
-
 .ai-message {
-    background-color: #e4e6eb; /* Màu nền AI */
+    background-color: #e4e6eb;
     color: #1c1e21;
-    align-self: flex-start; /* Bên trái */
+    align-self: flex-start;
     border-bottom-left-radius: 4px;
 }
-
 .user-message {
-    background-color: #0084ff; /* Màu nền User (Facebook blue) */
+    background-color: #0084ff;
     color: white;
-    align-self: flex-end; /* Bên phải */
+    align-self: flex-end;
     border-bottom-right-radius: 4px;
 }
-
-/* Dấu "đang gõ..." */
 .typing-indicator {
     background-color: #e4e6eb;
     padding: 10px 14px;
@@ -222,47 +294,40 @@ body, html {
 
 /* === PHẢN HỒI TRÊN DI ĐỘNG === */
 @media (max-width: 768px) {
-    .main-header {
-        padding: 0 15px;
-        height: 50px;
-    }
+    /* Header */
+    .main-header { padding: 0 15px; height: 50px; }
     .logo { font-size: 1em; }
     .main-nav { display: none; }
+
+    /* Container (Ebook) */
     .container {
-        flex-direction: column;
-        height: calc(100vh - 90px);
+        height: calc(100vh - 90px); /* 100% trừ 50px (header) và 40px (footer) */
         border-radius: 0;
     }
     .ebook-container {
-        flex-basis: 60%;
-        border-right: none;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    .chat-container {
-        flex-basis: 40%;
-        border-left: none;
+         border-right: none;
     }
     .canva-brand-link { font-size: 10px; padding: 5px 0; }
-    .chat-messages-area {
-        padding: 8px 10px;
+
+    /* Widget Chat trên di động */
+    :root {
+        --chat-offset: 15px;
+        --chat-bubble-size: 50px;
+        --chatbox-width: calc(100vw - 30px); /* Gần full chiều rộng */
+        --chatbox-height: calc(100vh - 70px - 50px - 40px); /* Full chiều cao còn lại */
     }
-    .ai-message, .user-message {
-        font-size: 0.85em;
-        max-width: 90%;
+     #ai-chat-box {
+        bottom: calc(var(--chat-bubble-size) + 8px);
+        right: calc(var(--chat-offset) * -1 + (100vw - var(--chatbox-width))/2); /* Căn giữa chatbox */
+        border-radius: 15px; /* Bo góc nhiều hơn */
     }
-    #chat-input-area {
-        padding: 8px 10px;
-    }
-    #user-input {
-        padding: 8px 12px;
-    }
-    #send-button {
-        width: 35px;
-        height: 35px;
-        margin-left: 8px;
-    }
-    #send-button svg {
-        width: 16px;
-        height: 16px;
-    }
+    .ai-chat-header { padding: 12px 15px; }
+    .chat-messages-area { padding: 8px 10px; }
+    .ai-message, .user-message { font-size: 0.9em; max-width: 90%; }
+    #chat-input-area { padding: 8px 10px; }
+    #user-input { padding: 8px 12px; }
+    #send-button { width: 35px; height: 35px; margin-left: 8px; }
+    #send-button svg { width: 16px; height: 16px; }
+
+    .main-footer { height: 40px; }
 }

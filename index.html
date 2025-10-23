@@ -21,34 +21,42 @@
     </header>
 
     <div class="container">
-
         <div class="ebook-container">
             <iframe class="canva-iframe-fix"
                 loading="lazy"
                 src="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed" allowfullscreen="allowfullscreen"
                 allow="fullscreen">
             </iframe>
-
             <a class="canva-brand-link" href="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?utm_content=DAG1iqLNUEc&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">
                 Chuyển động ném xiên của Minh Hua
             </a>
-        </div> <div class="chat-container">
-            <h2>AI Trợ Giảng</h2>
+        </div>
+        </div> <div id="ai-chat-widget">
+        <button id="ai-chat-bubble" aria-label="Mở AI Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+            </svg>
+        </button>
 
+        <div id="ai-chat-box">
+            <div class="ai-chat-header">
+                <h3>AI Trợ Giảng</h3>
+                <button id="ai-chat-close-btn" aria-label="Đóng Chat">&times;</button>
+            </div>
             <div id="chat-window" class="chat-messages-area">
-                <p class="ai-message">Chào bạn! Hãy hỏi tôi bất cứ điều gì về nội dung Ebook bên trái nhé!</p>
-                </div>
-
+                <p class="ai-message">Chào bạn! Cần tôi giúp gì hôm nay?</p>
+            </div>
             <div id="chat-input-area">
-                <input type="text" id="user-input" placeholder="Gõ câu hỏi của bạn...">
-
+                <input type="text" id="user-input" placeholder="Hỏi AI...">
                 <button id="send-button" aria-label="Gửi">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2 .01 7z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2 .01 7z"/>
                     </svg>
                 </button>
             </div>
-        </div> </div> <footer class="main-footer">
+        </div>
+    </div>
+    <footer class="main-footer">
         <p>© 2025 Ebook AI. Phát triển bởi Minh Hua.</p>
     </footer>
 
