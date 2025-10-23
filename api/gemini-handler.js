@@ -24,8 +24,7 @@ export default async function handler(req, res) {
     }
 
     // Chọn model Gemini (flash là bản nhanh và miễn phí)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+   const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // <-- Đổi sang gemini-pro ổn định hơn
     // Gọi Gemini
     const result = await model.generateContent(question);
     const response = await result.response;
