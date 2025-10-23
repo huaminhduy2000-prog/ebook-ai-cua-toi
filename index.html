@@ -14,9 +14,17 @@
     <header class="main-header">
         <div class="logo">EBOOK VẬT LÝ AI</div>
         <nav class="main-nav">
-            <a href="#">Chương 1</a>
-            <a href="#">Chương 2</a>
-            <a href="#">Liên hệ</a>
+            <div class="dropdown">
+                <button class="dropbtn">Chương <span class="arrow">&#9662;</span></button>
+                <div class="dropdown-content">
+                    <a href="#" data-content-url="LINK_CANVA_CHUONG_1">Chương 1</a> <a href="#" data-content-url="LINK_CANVA_CHUONG_2">Chương 2</a> </div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">Bài tập <span class="arrow">&#9662;</span></button>
+                <div class="dropdown-content">
+                    <a href="#" data-content-url="LINK_CANVA_BAITAP_1">Bài tập Chương 1</a> <a href="#" data-content-url="LINK_CANVA_BAITAP_2">Bài tập Chương 2</a> </div>
+            </div>
+            <a href="#" id="contact-link">Liên hệ</a>
         </nav>
     </header>
 
@@ -28,16 +36,34 @@
                 allow="fullscreen">
             </iframe>
             <a class="canva-brand-link" href="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?utm_content=DAG1iqLNUEc&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">
-                Chuyển động ném xiên của Minh Hua
+                Cơ học chất điểm của Minh Hua
             </a>
+        </div> </div> <div id="contact-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal-btn" class="close-button">&times;</button>
+            <h2>Thông tin liên hệ</h2>
+            <ul>
+                <li><strong>Tên:</strong> Hứa Duy Minh</li>
+                <li><strong>Số điện thoại:</strong> <a href="tel:0918678616">0918678616</a></li>
+                <li><strong>Email:</strong> <a href="mailto:huaduyminh2007@gmail.com">huaduyminh2007@gmail.com</a></li>
+                <li><strong>Zalo:</strong> 0819670487</li>
+            </ul>
         </div>
-        </div> <div id="ai-chat-widget">
+    </div>
+    ```
+    
+        </div>
+    </div>
+    <footer class="main-footer">
+        <p>© 2025 Ebook AI. Phát triển bởi Minh Hua.</p>
+    </footer>
+
+    <div id="ai-chat-widget">
         <button id="ai-chat-bubble" aria-label="Mở AI Chat">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
             </svg>
         </button>
-
         <div id="ai-chat-box">
             <div class="ai-chat-header">
                 <h3>AI Trợ Giảng</h3>
@@ -56,9 +82,6 @@
             </div>
         </div>
     </div>
-    <footer class="main-footer">
-        <p>© 2025 Ebook AI. Phát triển bởi Minh Hua.</p>
-    </footer>
 
     <script src="chat.js"></script>
 
