@@ -1,10 +1,10 @@
 /* Thiết lập cơ bản và phông chữ Roboto */
-body, html { 
-    margin: 0; 
-    padding: 0; 
-    height: 100%; 
-    font-family: 'Roboto', Arial, sans-serif; 
-    background-color: #f4f7f6; 
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f4f7f6;
 }
 
 /* === HEADER === */
@@ -15,20 +15,20 @@ body, html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 30px; /* Thêm padding */
-    box-sizing: border-box; 
-    height: 60px; 
+    padding: 0 30px;
+    box-sizing: border-box;
+    height: 60px;
 }
 .logo {
-    font-size: 1.25em; 
+    font-size: 1.25em;
     font-weight: 700;
-    color: #333; 
-    letter-spacing: 1.5px; 
-    text-transform: uppercase; 
-    padding: 0 10px; 
+    color: #333;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0 10px;
 }
 .main-nav a {
-    margin-left: 25px; /* Giãn cách nav */
+    margin-left: 25px;
     text-decoration: none;
     color: #555;
     font-weight: 500;
@@ -39,20 +39,19 @@ body, html {
 }
 
 /* Container chính (trừ đi Header VÀ Footer) */
-.container { 
-    display: flex; 
-    /* Lấy 100% trừ đi 60px (header) và 40px (footer) */
-    height: calc(100vh - 100px); 
-    max-width: 1800px; 
-    margin: 0 auto; 
-    box-shadow: 0 4px 25px rgba(0,0,0,0.08); 
-    overflow: hidden; 
-    border-radius: 10px; 
+.container {
+    display: flex;
+    height: calc(100vh - 100px); /* 100% trừ 60px (header) và 40px (footer) */
+    max-width: 1800px;
+    margin: 0 auto;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border-radius: 10px;
 }
 
 /* === CỘT 1: EBOOK CANVA === */
 .ebook-container {
-    flex-basis: 70%; 
+    flex-basis: 70%;
     background-color: #fff;
     padding: 0;
     display: flex;
@@ -77,32 +76,32 @@ body, html {
 
 /* === CỘT 2: CHATBOX AI === */
 .chat-container {
-    flex-basis: 30%; 
+    flex-basis: 30%;
     display: flex;
-    flex-direction: column; 
-    background: #ffffff; 
-    border-left: 1px solid #e0e0e0; 
+    flex-direction: column;
+    background: #ffffff;
+    border-left: 1px solid #e0e0e0;
 }
-.chat-container h2 { 
-    text-align: center; 
+.chat-container h2 {
+    text-align: center;
     padding: 18px;
-    margin: 0; 
-    background: #f9f9f9; 
+    margin: 0;
+    background: #f9f9f9;
     font-size: 1.1em;
-    color: #1a73e8; 
+    color: #1a73e8;
     font-weight: 700;
     border-bottom: 1px solid #e0e0e0;
     letter-spacing: 0.5px;
     flex-shrink: 0;
 }
 #chat-window {
-    flex-grow: 1; 
+    flex-grow: 1;
     padding: 20px;
-    overflow-y: auto; 
+    overflow-y: auto;
     background-color: #fdfdfd;
     display: flex;
-    flex-direction: column; 
-    gap: 10px; 
+    flex-direction: column;
+    gap: 10px;
 }
 .ai-message {
     background-color: #f1f3f4;
@@ -112,6 +111,7 @@ body, html {
     font-size: 0.95em;
     max-width: 85%;
     align-self: flex-start;
+    word-wrap: break-word; /* Thêm để chữ dài tự xuống dòng */
 }
 .user-message {
     background-color: #1a73e8;
@@ -122,6 +122,7 @@ body, html {
     font-size: 0.95em;
     max-width: 85%;
     align-self: flex-end;
+    word-wrap: break-word; /* Thêm để chữ dài tự xuống dòng */
 }
 .typing-indicator { padding: 10px 14px; }
 .typing-indicator span {
@@ -146,7 +147,7 @@ body, html {
     padding: 15px;
     border-top: 1px solid #e0e0e0;
     background: #f9f9f9;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 #user-input {
     flex-grow: 1;
@@ -159,13 +160,11 @@ body, html {
     outline: none;
     border-color: #1a73e8;
 }
-
-/* NÂNG CẤP 2: NÚT "GỬI" BẰNG ICON */
 #send-button {
     background-color: #1a73e8;
     color: white;
     border: none;
-    border-radius: 50%; 
+    border-radius: 50%;
     width: 40px;
     height: 40px;
     margin-left: 10px;
@@ -174,17 +173,16 @@ body, html {
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: background-color 0.2s; /* Thêm hiệu ứng hover */
+    transition: background-color 0.2s;
 }
 #send-button:hover {
     background-color: #185abc;
 }
-/* Căn chỉnh icon SVG bên trong nút Gửi */
 #send-button svg {
-    margin-left: 2px; /* Chỉnh 1 chút cho cân */
+    margin-left: 2px;
 }
 
-/* NÂNG CẤP 3: FOOTER (CHÂN TRANG) */
+/* === FOOTER === */
 .main-footer {
     height: 40px;
     background-color: #333;
@@ -198,39 +196,33 @@ body, html {
     margin: 0;
 }
 
-
-/* NÂNG CẤP 1: PHẢN HỒI TRÊN DI ĐỘNG (RẤT QUAN TRỌNG) */
-/* Áp dụng khi màn hình nhỏ hơn 768px */
+/* === PHẢN HỒI TRÊN DI ĐỘNG === */
 @media (max-width: 768px) {
-    
-    /* Cho Header thu gọn lại */
     .main-header {
         padding: 0 15px;
         height: 50px;
     }
-    .logo {
-        font-size: 1em;
-    }
-    .main-nav a {
-        margin-left: 10px;
-        font-size: 0.9em;
-    }
-
-    /* Cho .container xếp dọc (column) thay vì ngang (row) */
+    .logo { font-size: 1em; }
+    .main-nav { display: none; } /* Ẩn nav trên di động cho gọn */
     .container {
         flex-direction: column;
         height: calc(100vh - 90px); /* 100% trừ 50px (header) và 40px (footer) */
         border-radius: 0;
     }
-
-    /* Bắt 2 cột chiếm 100% chiều rộng */
     .ebook-container {
-        flex-basis: 60%; /* Ebook chiếm 60% chiều cao */
+        flex-basis: 60%;
         border-right: none;
         border-bottom: 1px solid #e0e0e0;
     }
     .chat-container {
-        flex-basis: 40%; /* Chatbox chiếm 40% chiều cao */
+        flex-basis: 40%;
         border-left: none;
     }
+    .canva-brand-link { font-size: 10px; padding: 5px 0; }
+    #chat-window { padding: 15px; }
+    #chat-input-area { padding: 10px; }
+    #user-input { padding: 8px 12px; }
+    #send-button { width: 35px; height: 35px; margin-left: 8px; }
+    #send-button svg { width: 18px; height: 18px; margin-left: 1px;}
+    .ai-message, .user-message { font-size: 0.9em; max-width: 90%; }
 }
