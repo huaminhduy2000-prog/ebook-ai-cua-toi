@@ -1,7 +1,8 @@
 // File: chat.js (ở thư mục GỐC)
 document.addEventListener("DOMContentLoaded", () => {
 
-    // === PHẦN CHATBOT ===
+    // === LẤY CÁC PHẦN TỬ DOM ===
+    // Chatbot Elements
     const sendButton = document.getElementById("send-button");
     const userInput = document.getElementById("user-input");
     const chatWindow = document.getElementById("chat-window");
@@ -9,29 +10,107 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBubble = document.getElementById('ai-chat-bubble');
     const chatBox = document.getElementById('ai-chat-box');
     const closeChatBtn = document.getElementById('ai-chat-close-btn');
+    // Dropdown Elements
+    const dropdownBtns = document.querySelectorAll('.main-nav .dropbtn');
+    const canvaIframe = document.querySelector('.canva-iframe-fix');
+    const canvaBrandLink = document.querySelector('.canva-brand-link');
+    // Modal Elements
+    const contactLink = document.getElementById('contact-link');
+    const contactModal = document.getElementById('contact-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
 
-    // Kiểm tra lỗi nếu không tìm thấy phần tử chat
-    if (!sendButton || !userInput || !chatWindow || !chatWidget || !chatBubble || !chatBox || !closeChatBtn) {
-        console.error("LỖI Frontend: Không tìm thấy các phần tử chat quan trọng.");
-    } else {
-        // NỐI DÂY ĐIỆN CHO CHATBOT
+    // === KIỂM TRA PHẦN TỬ DOM (Để tránh lỗi nếu HTML thay đổi) ===
+    function checkElements(...elements) {
+        return elements.every(el => el !== null);
+    }
+    const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn);
+    const dropdownElementsExist = dropdownBtns.length > 0 && canvaIframe && canvaBrandLink;
+    const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn);
+
+    // === GẮN SỰ KIỆN (EVENT LISTENERS) ===
+
+    // 1. Chatbot Events
+    if (essentialChatElementsExist) {
         sendButton.addEventListener("click", sendMessage);
         userInput.addEventListener("keypress", (event) => {
             if (event.key === "Enter") { event.preventDefault(); sendMessage(); }
         });
         chatBubble.addEventListener('click', toggleChatBox);
         closeChatBtn.addEventListener('click', toggleChatBox);
+    } else {
+        console.error("LỖI Frontend: Thiếu phần tử chat quan trọng.");
     }
 
-    // HÀM GỬI TIN NHẮN (GỌI /api/gemini-handler)
+    // 2. Dropdown Menu Events
+    if (dropdownElementsExist) {
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const content = this.nextElementSibling;
+                const parentDropdown = this.parentElement;
+                const isOpen = content.classList.contains('show');
+                closeAllDropdowns(); // Luôn đóng cái khác trước
+                if (!isOpen) { // Chỉ mở nếu nó đang đóng
+                    content.classList.add('show');
+                    parentDropdown.classList.add('open');
+                }
+            });
+        });
+        document.querySelectorAll('.main-nav .dropdown-content a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const newUrl = this.getAttribute('data-content-url');
+                const newText = this.textContent;
+                loadCanvaContent(newUrl, newText);
+                closeAllDropdowns();
+            });
+        });
+        // Đóng dropdown khi click ra ngoài
+        window.addEventListener('click', (event) => {
+             if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) { // Kiểm tra cả phần tử con
+                closeAllDropdowns();
+            }
+        });
+    } else {
+        console.warn("CẢNH BÁO: Thiếu phần tử dropdown hoặc iframe.");
+    }
+
+    // 3. Contact Modal Events
+    if (modalElementsExist) {
+        contactLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            contactModal.classList.add('show');
+        });
+        closeModalBtn.addEventListener('click', () => {
+            contactModal.classList.remove('show');
+        });
+        contactModal.addEventListener('click', (event) => {
+            if (event.target === contactModal) {
+                contactModal.classList.remove('show');
+            }
+        });
+         // Đóng modal bằng phím Escape
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && contactModal.classList.contains('show')) {
+                 contactModal.classList.remove('show');
+            }
+        });
+    } else {
+        console.warn("CẢNH BÁO: Thiếu phần tử modal liên hệ.");
+    }
+
+    // === CÁC HÀM XỬ LÝ ===
+
+    // --- Chatbot Functions ---
     async function sendMessage() {
+        if (!userInput || !essentialChatElementsExist) return; // Kiểm tra lại
         let question = userInput.value.trim();
         if (question === "") return;
         addMessage(question, "user");
         userInput.value = "";
         showTypingIndicator();
         try {
-            const response = await fetch('/api/gemini-handler', {
+            const response = await fetch('/api/gemini-handler', { // Endpoint backend Gemini
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question: question })
@@ -46,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
             addMessage(`Xin lỗi, đã xảy ra sự cố: ${error.message}`, "ai");
         }
     }
-    // HÀM THÊM TIN NHẮN VÀO CỬA SỔ
     function addMessage(message, sender) {
         if (!chatWindow) return;
         const messageElement = document.createElement("p");
@@ -56,7 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
         chatWindow.appendChild(messageElement);
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-    // HÀM HIỂN THỊ/XÓA "ĐANG GÕ..."
     function showTypingIndicator() {
         if (document.getElementById("typing-indicator") || !chatWindow) return;
         const typingIndicator = document.createElement("p");
@@ -70,93 +147,65 @@ document.addEventListener("DOMContentLoaded", () => {
         const indicator = document.getElementById("typing-indicator");
         if (indicator && chatWindow) { chatWindow.removeChild(indicator); }
     }
-    // HÀM MỞ/ĐÓNG CHATBOX
     function toggleChatBox() {
         if (!chatWidget) return;
-        chatWidget.classList.toggle('chat-open');
-        if (chatWidget.classList.contains('chat-open')) {
-            setTimeout(() => userInput.focus(), 50);
+        const isOpen = chatWidget.classList.toggle('chat-open');
+        if (isOpen) {
+            // Đảm bảo chatbox thực sự hiện ra trước khi focus
+            requestAnimationFrame(() => {
+                 setTimeout(() => userInput.focus(), 0);
+            });
         }
     }
 
-    // === PHẦN DROPDOWN MENU ===
-    const dropdownBtns = document.querySelectorAll('.main-nav .dropbtn');
-    const canvaIframe = document.querySelector('.canva-iframe-fix');
-    const canvaBrandLink = document.querySelector('.canva-brand-link');
-
-    if (dropdownBtns.length > 0 && canvaIframe && canvaBrandLink) {
-        // Sự kiện click cho nút dropdown
-        dropdownBtns.forEach(btn => {
-            btn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                const content = this.nextElementSibling;
-                closeAllDropdowns(content);
-                content.classList.toggle('show');
-                this.parentElement.classList.toggle('open');
-            });
-        });
-        // Sự kiện click cho link trong dropdown
-        document.querySelectorAll('.main-nav .dropdown-content a').forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                const newUrl = this.getAttribute('data-content-url');
-                const newText = this.textContent;
-                if (canvaIframe && newUrl) {
-                    console.log("Đang tải:", newUrl);
-                    canvaIframe.src = newUrl;
-                }
-                if (canvaBrandLink && newUrl) {
-                    try {
-                        const urlParams = new URLSearchParams(new URL(newUrl).search);
-                        const designId = urlParams.get('designId') || new URL(newUrl).pathname.split('/')[2];
-                        if (designId) {
-                            canvaBrandLink.href = `https://www.canva.com/design/${designId}/view?utm_content=${designId}&utm_campaign=designshare&utm_medium=embeds&utm_source=link`;
-                            canvaBrandLink.textContent = `${newText} của Minh Hua`;
-                        }
-                    } catch(e) { console.error("Không thể cập nhật link branding:", e); }
-                }
-                closeAllDropdowns();
-            });
-        });
-        // Đóng dropdown khi click ra ngoài
-        window.addEventListener('click', function(event) {
-            if (!event.target.matches('.main-nav .dropbtn')) {
-                closeAllDropdowns();
-            }
-        });
-    }
-    // Hàm đóng dropdown
+    // --- Dropdown Functions ---
     function closeAllDropdowns(exceptThisOne = null) {
         document.querySelectorAll('.main-nav .dropdown-content.show').forEach(openDropdown => {
             if (openDropdown !== exceptThisOne) {
                 openDropdown.classList.remove('show');
-                if (openDropdown.previousElementSibling?.parentElement) {
-                     openDropdown.previousElementSibling.parentElement.classList.remove('open');
-                }
+                const parentDropdown = openDropdown.closest('.dropdown');
+                if (parentDropdown) parentDropdown.classList.remove('open');
             }
         });
     }
+    function loadCanvaContent(newUrl, newText) {
+         if (canvaIframe && newUrl && newUrl !== '#') {
+            console.log("Đang tải Canva:", newUrl);
+            canvaIframe.src = newUrl; // Thay đổi link src của iframe
 
-    // === PHẦN MODAL LIÊN HỆ ===
-    const contactLink = document.getElementById('contact-link');
-    const contactModal = document.getElementById('contact-modal');
-    const closeModalBtn = document.getElementById('close-modal-btn');
+            // Cập nhật link branding (tùy chọn)
+            if (canvaBrandLink) {
+                 try {
+                     // Cố gắng trích xuất ID thiết kế từ URL embed mới
+                     // Cách 1: Tìm trong query param (ít tin cậy hơn)
+                     let designId = new URLSearchParams(new URL(newUrl).search).get('designId');
+                     // Cách 2: Tìm trong path (tin cậy hơn)
+                     if (!designId) {
+                         const pathParts = new URL(newUrl).pathname.split('/');
+                         // ID thường là phần tử thứ 3 (index 2) sau /design/
+                         if (pathParts[1] === 'design' && pathParts[2]) {
+                            designId = pathParts[2];
+                         }
+                     }
 
-    if (contactLink && contactModal && closeModalBtn) {
-        contactLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            contactModal.classList.add('show');
-        });
-        closeModalBtn.addEventListener('click', () => {
-            contactModal.classList.remove('show');
-        });
-        contactModal.addEventListener('click', (event) => {
-            if (event.target === contactModal) {
-                contactModal.classList.remove('show');
+                     if (designId) {
+                         canvaBrandLink.href = `https://www.canva.com/design/${designId}/view?utm_content=${designId}&utm_campaign=designshare&utm_medium=embeds&utm_source=link`;
+                         canvaBrandLink.textContent = `${newText || 'Thiết kế'} của Minh Hua trên Canva`;
+                     } else {
+                         // Nếu không tìm được ID, ẩn hoặc giữ nguyên link cũ
+                          canvaBrandLink.textContent = `Thiết kế của Minh Hua trên Canva`;
+                          canvaBrandLink.href = "#"; // Hoặc ẩn đi: canvaBrandLink.style.display = 'none';
+                     }
+                 } catch(e) {
+                     console.error("Không thể phân tích URL Canva hoặc cập nhật link branding:", e);
+                      // Giữ nguyên link cũ hoặc ẩn đi
+                      canvaBrandLink.textContent = `Thiết kế của Minh Hua trên Canva`;
+                      canvaBrandLink.href = "#";
+                 }
             }
-        });
-    } else {
-        console.warn("CẢNH BÁO: Không tìm thấy các phần tử modal liên hệ.");
+        } else {
+            console.warn("URL Canva không hợp lệ hoặc iframe không tồn tại:", newUrl);
+        }
     }
 
 }); // Kết thúc DOMContentLoaded
