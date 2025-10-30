@@ -1,8 +1,10 @@
 // File: chat.js (ở thư mục GỐC)
+// Code này xử lý TOÀN BỘ tương tác Giao diện (Front-end)
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // === LẤY CÁC PHẦN TỬ DOM ===
-    // Chatbot Elements
+    // Chatbot
     const sendButton = document.getElementById("send-button");
     const userInput = document.getElementById("user-input");
     const chatWindow = document.getElementById("chat-window");
@@ -10,22 +12,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBubble = document.getElementById('ai-chat-bubble');
     const chatBox = document.getElementById('ai-chat-box');
     const closeChatBtn = document.getElementById('ai-chat-close-btn');
-    // Dropdown Elements
+    // Dropdown
     const dropdownBtns = document.querySelectorAll('.main-nav .dropbtn');
     const canvaIframe = document.querySelector('.canva-iframe-fix');
     const canvaBrandLink = document.querySelector('.canva-brand-link');
-    // Modal Elements
+    // Modal
     const contactLink = document.getElementById('contact-link');
     const contactModal = document.getElementById('contact-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
+    // Scroll Animation
+    const modernEbookSection = document.getElementById('modern-ebook');
 
     // === KIỂM TRA PHẦN TỬ DOM (Để tránh lỗi nếu HTML thay đổi) ===
     function checkElements(...elements) {
         return elements.every(el => el !== null);
     }
+    // Kiểm tra các nhóm tính năng
     const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn);
     const dropdownElementsExist = dropdownBtns.length > 0 && canvaIframe && canvaBrandLink;
     const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn);
+    const scrollElementsExist = checkElements(modernEbookSection, chatWidget); // Cần cả 2 để chạy scroll animation
 
     // === GẮN SỰ KIỆN (EVENT LISTENERS) ===
 
@@ -99,18 +105,49 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("CẢNH BÁO: Thiếu phần tử modal liên hệ.");
     }
 
-    // === CÁC HÀM XỬ LÝ ===
+    // 4. Scroll Animation Event (Intersection Observer)
+    if (scrollElementsExist) {
+        const observerOptions = {
+            root: null, // Quan sát so với viewport
+            rootMargin: '0px',
+            threshold: 0.25 // Kích hoạt khi 25% section hiện ra
+        };
+
+        const observerCallback = (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Khi cuộn tới Ebook hiện đại
+                    if (entry.target.id === 'modern-ebook') {
+                        entry.target.classList.add('is-visible');
+                        chatWidget.classList.add('is-visible'); // Hiện cả chat bubble
+                    }
+                } else {
+                    // Ẩn lại khi cuộn lên (tùy chọn)
+                    if (entry.target.id === 'modern-ebook') {
+                        entry.target.classList.remove('is-visible');
+                        chatWidget.classList.remove('is-visible');
+                    }
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        observer.observe(modernEbookSection); // Bắt đầu quan sát Ebook hiện đại
+    }
+
+    // === CÁC HÀM XỬ LÝ (HELPER FUNCTIONS) ===
 
     // --- Chatbot Functions ---
     async function sendMessage() {
-        if (!userInput || !essentialChatElementsExist) return; // Kiểm tra lại
+        if (!userInput) return; // Kiểm tra lại
         let question = userInput.value.trim();
         if (question === "") return;
         addMessage(question, "user");
         userInput.value = "";
         showTypingIndicator();
         try {
-            const response = await fetch('/api/gemini-handler', { // Endpoint backend Gemini
+            // Gọi Backend Gemini
+            const response = await fetch('/api/gemini-handler', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question: question })
@@ -151,7 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!chatWidget) return;
         const isOpen = chatWidget.classList.toggle('chat-open');
         if (isOpen) {
-            // Đảm bảo chatbox thực sự hiện ra trước khi focus
             requestAnimationFrame(() => {
                  setTimeout(() => userInput.focus(), 0);
             });
@@ -172,33 +208,24 @@ document.addEventListener("DOMContentLoaded", () => {
          if (canvaIframe && newUrl && newUrl !== '#') {
             console.log("Đang tải Canva:", newUrl);
             canvaIframe.src = newUrl; // Thay đổi link src của iframe
-
-            // Cập nhật link branding (tùy chọn)
             if (canvaBrandLink) {
                  try {
-                     // Cố gắng trích xuất ID thiết kế từ URL embed mới
-                     // Cách 1: Tìm trong query param (ít tin cậy hơn)
                      let designId = new URLSearchParams(new URL(newUrl).search).get('designId');
-                     // Cách 2: Tìm trong path (tin cậy hơn)
                      if (!designId) {
                          const pathParts = new URL(newUrl).pathname.split('/');
-                         // ID thường là phần tử thứ 3 (index 2) sau /design/
                          if (pathParts[1] === 'design' && pathParts[2]) {
                             designId = pathParts[2];
                          }
                      }
-
                      if (designId) {
                          canvaBrandLink.href = `https://www.canva.com/design/${designId}/view?utm_content=${designId}&utm_campaign=designshare&utm_medium=embeds&utm_source=link`;
                          canvaBrandLink.textContent = `${newText || 'Thiết kế'} của Minh Hua trên Canva`;
                      } else {
-                         // Nếu không tìm được ID, ẩn hoặc giữ nguyên link cũ
                           canvaBrandLink.textContent = `Thiết kế của Minh Hua trên Canva`;
-                          canvaBrandLink.href = "#"; // Hoặc ẩn đi: canvaBrandLink.style.display = 'none';
+                          canvaBrandLink.href = "#";
                      }
                  } catch(e) {
                      console.error("Không thể phân tích URL Canva hoặc cập nhật link branding:", e);
-                      // Giữ nguyên link cũ hoặc ẩn đi
                       canvaBrandLink.textContent = `Thiết kế của Minh Hua trên Canva`;
                       canvaBrandLink.href = "#";
                  }
