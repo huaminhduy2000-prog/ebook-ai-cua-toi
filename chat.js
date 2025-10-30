@@ -1,6 +1,4 @@
 // File: chat.js (ở thư mục GỐC)
-// Code này xử lý TOÀN BỘ tương tác Giao diện (Front-end)
-
 document.addEventListener("DOMContentLoaded", () => {
 
     // === LẤY CÁC PHẦN TỬ DOM ===
@@ -20,18 +18,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const contactLink = document.getElementById('contact-link');
     const contactModal = document.getElementById('contact-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
-    // Scroll Animation
-    const modernEbookSection = document.getElementById('modern-ebook');
 
     // === KIỂM TRA PHẦN TỬ DOM (Để tránh lỗi nếu HTML thay đổi) ===
     function checkElements(...elements) {
         return elements.every(el => el !== null);
     }
-    // Kiểm tra các nhóm tính năng
     const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn);
     const dropdownElementsExist = dropdownBtns.length > 0 && canvaIframe && canvaBrandLink;
     const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn);
-    const scrollElementsExist = checkElements(modernEbookSection, chatWidget); // Cần cả 2 để chạy scroll animation
 
     // === GẮN SỰ KIỆN (EVENT LISTENERS) ===
 
@@ -73,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         // Đóng dropdown khi click ra ngoài
         window.addEventListener('click', (event) => {
-             if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) { // Kiểm tra cả phần tử con
+             if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) {
                 closeAllDropdowns();
             }
         });
@@ -105,41 +99,11 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("CẢNH BÁO: Thiếu phần tử modal liên hệ.");
     }
 
-    // 4. Scroll Animation Event (Intersection Observer)
-    if (scrollElementsExist) {
-        const observerOptions = {
-            root: null, // Quan sát so với viewport
-            rootMargin: '0px',
-            threshold: 0.25 // Kích hoạt khi 25% section hiện ra
-        };
-
-        const observerCallback = (entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    // Khi cuộn tới Ebook hiện đại
-                    if (entry.target.id === 'modern-ebook') {
-                        entry.target.classList.add('is-visible');
-                        chatWidget.classList.add('is-visible'); // Hiện cả chat bubble
-                    }
-                } else {
-                    // Ẩn lại khi cuộn lên (tùy chọn)
-                    if (entry.target.id === 'modern-ebook') {
-                        entry.target.classList.remove('is-visible');
-                        chatWidget.classList.remove('is-visible');
-                    }
-                }
-            });
-        };
-
-        const observer = new IntersectionObserver(observerCallback, observerOptions);
-        observer.observe(modernEbookSection); // Bắt đầu quan sát Ebook hiện đại
-    }
-
     // === CÁC HÀM XỬ LÝ (HELPER FUNCTIONS) ===
 
     // --- Chatbot Functions ---
     async function sendMessage() {
-        if (!userInput) return; // Kiểm tra lại
+        if (!userInput) return;
         let question = userInput.value.trim();
         if (question === "") return;
         addMessage(question, "user");

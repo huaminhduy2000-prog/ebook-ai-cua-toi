@@ -15,13 +15,12 @@ body, html {
     font-family: 'Roboto', Arial, sans-serif;
     background-color: #f4f7f6;
     font-size: 16px;
-    scroll-behavior: smooth; /* Cuộn trang mượt */
 }
 * {
     box-sizing: border-box;
 }
 
-/* === HEADER (Cố định) === */
+/* --- Header --- */
 .main-header {
     width: 100%;
     background-color: #ffffff;
@@ -31,10 +30,8 @@ body, html {
     align-items: center;
     padding: 0 30px;
     height: var(--header-height);
-    position: fixed; /* Cố định trên cùng */
-    top: 0;
-    left: 0;
-    z-index: 100; /* Nằm trên */
+    position: relative; /* Không cố định */
+    z-index: 100;
 }
 .logo {
     font-size: 1.25em;
@@ -42,11 +39,9 @@ body, html {
     color: #333;
     letter-spacing: 1.5px;
     text-transform: uppercase;
+    padding: 0 10px;
 }
-.main-nav {
-    display: flex;
-    align-items: center;
-}
+.main-nav { display: flex; align-items: center; }
 .main-nav a, .dropbtn {
     margin-left: 15px;
     text-decoration: none;
@@ -58,10 +53,7 @@ body, html {
     border-radius: 4px;
     transition: color 0.2s, background-color 0.2s;
 }
-.main-nav a:hover, .dropbtn:hover {
-    color: #1a73e8;
-    background-color: #f0f0f0;
-}
+.main-nav a:hover, .dropbtn:hover { color: #1a73e8; background-color: #f0f0f0;}
 .dropbtn {
     background-color: transparent;
     border: none;
@@ -69,15 +61,8 @@ body, html {
     display: flex;
     align-items: center;
 }
-.dropbtn .arrow {
-    margin-left: 5px;
-    font-size: 0.7em;
-    transition: transform 0.2s ease-in-out;
-}
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
+.dropbtn .arrow { margin-left: 5px; font-size: 0.7em; transition: transform 0.2s ease-in-out; }
+.dropdown { position: relative; display: inline-block; }
 .dropdown-content {
     display: none;
     position: absolute;
@@ -99,472 +84,124 @@ body, html {
     white-space: nowrap;
     margin: 0;
 }
-.dropdown-content a:hover {
-    background-color: #f0f2f5;
-    color: #1a73e8;
-}
-.dropdown-content.show {
+.dropdown-content a:hover { background-color: #f0f2f5; color: #1a73e8; }
+.dropdown-content.show { display: block; animation: fadeIn 0.2s ease-out; }
+.dropdown.open .dropbtn .arrow { transform: rotate(180deg); }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- Container chính (Chỉ Ebook) --- */
+.container {
     display: block;
-    animation: fadeIn 0.2s ease-out;
-}
-.dropdown.open .dropbtn .arrow {
-    transform: rotate(180deg);
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* === CONTAINER CHÍNH (Wrapper cho các section) === */
-.scroll-container {
-    /* Đảm bảo nội dung bắt đầu SAU header */
-    margin-top: var(--header-height);
-}
-
-/* Định dạng chung cho các Section */
-.scroll-section {
-    min-height: 100vh; /* Cao bằng màn hình */
-    padding: 60px 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+    height: calc(100vh - var(--header-height) - var(--footer-height));
+    max-width: 1800px;
+    margin: 0 auto;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.08);
     overflow: hidden;
-}
-
-/* === Section 1: Sách Cũ === */
-.old-book-style {
-    background-color: #fdf8e1; /* Màu giấy cũ */
-    color: #4a3f35;
-    text-align: center;
-    transition: opacity 0.5s ease-out;
-}
-.old-book-style .intro-content {
-    max-width: 800px;
-}
-.old-book-style h1 {
-    font-family: 'Noto Serif', Times, serif; /* Font cổ điển */
-    font-size: 3.5em;
-    font-weight: 700;
-    margin-bottom: 20px;
-}
-.old-book-style .subtitle {
-    font-family: 'Noto Serif', Times, serif;
-    font-size: 1.3em;
-    font-style: italic;
-    margin-bottom: 40px;
-    color: #7a6f65;
-}
-.old-book-style .old-text {
-    font-family: 'Noto Serif', Times, serif;
-    line-height: 1.8;
-    font-size: 1.1em;
-}
-.old-book-style .scroll-prompt {
-    font-size: 2em;
-    margin-top: 40px;
-    margin-bottom: 0;
-    animation: bounce 2s infinite;
-}
-.old-book-style .scroll-prompt-text {
-    font-size: 0.9em;
-    font-style: italic;
-    color: #7a6f65;
-    margin-top: 5px;
-}
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
-}
-
-/* === Section 2: Ebook Hiện Đại === */
-.modern-ebook-style {
-    background-color: #f4f7f6; /* Nền hiện đại */
-    padding: 0;
-    min-height: 100vh;
-    /* Trạng thái ẨN ban đầu cho hiệu ứng */
-    opacity: 0;
-    transform: translateY(50px);
-    transition: opacity 1s ease-out, transform 1s ease-out;
-}
-/* Trạng thái HIỆN khi cuộn tới (JS sẽ thêm class này) */
-.modern-ebook-style.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-.ebook-container {
-    height: calc(100vh - 40px); /* Cao gần full section */
-    width: 90%;
-    max-width: 1600px;
-    margin: 20px auto;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.1);
     border-radius: 10px;
-    overflow: hidden;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
     background-color: #fff;
+    position: relative;
 }
-.canva-iframe-fix {
-    width: 100%;
-    flex-grow: 1;
-    border: none;
-}
+.ebook-container { height: 100%; padding: 0; display: flex; flex-direction: column; }
+.canva-iframe-fix { width: 100%; flex-grow: 1; border: none; }
 .canva-brand-link {
-    display: block;
-    text-align: center;
-    font-size: 11px;
-    color: #999;
-    padding: 6px 0;
-    text-decoration: none;
-    flex-shrink: 0;
-    background-color: #f9fafb;
-    border-top: 1px solid #eee;
+    display: block; text-align: center; font-size: 11px; color: #999;
+    padding: 6px 0; text-decoration: none; flex-shrink: 0;
+    background-color: #f9fafb; border-top: 1px solid #eee;
 }
 
-/* === MODAL LIÊN HỆ === */
+/* --- Modal Liên hệ --- */
 .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
+    display: none; position: fixed; inset: 0;
     background-color: rgba(0, 0, 0, 0.65);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    z-index: 2000; justify-content: center; align-items: center;
+    opacity: 0; transition: opacity 0.3s ease-in-out;
 }
 .modal-content {
-    background-color: #fff;
-    padding: 35px 45px;
-    border-radius: 10px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    position: relative;
-    max-width: 420px;
-    width: 90%;
-    text-align: center;
-    transform: scale(0.95);
-    transition: transform 0.3s ease-in-out;
+    background-color: #fff; padding: 35px 45px; border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); position: relative;
+    max-width: 420px; width: 90%; text-align: center;
+    transform: scale(0.95); transition: transform 0.3s ease-in-out;
 }
-.modal-overlay.show {
-    display: flex;
-    opacity: 1;
-}
-.modal-overlay.show .modal-content {
-    transform: scale(1);
-}
-.modal-content h2 {
-    color: #222;
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-weight: 500;
-}
-.modal-content ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: left;
-}
-.modal-content li {
-    margin-bottom: 14px;
-    color: #555;
-    font-size: 1em;
-}
-.modal-content li strong {
-    display: inline-block;
-    min-width: 110px;
-    color: #111;
-    font-weight: 500;
-}
-.modal-content a {
-    color: #1a73e8;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-.modal-content a:hover {
-    text-decoration: underline;
-    color: #105ab8;
-}
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-overlay.show .modal-content { transform: scale(1); }
+.modal-content h2 { color: #222; margin-top: 0; margin-bottom: 25px; font-weight: 500; }
+.modal-content ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+.modal-content li { margin-bottom: 14px; color: #555; font-size: 1em; }
+.modal-content li strong { display: inline-block; min-width: 110px; color: #111; font-weight: 500;}
+.modal-content a { color: #1a73e8; text-decoration: none; transition: color 0.2s; }
+.modal-content a:hover { text-decoration: underline; color: #105ab8; }
 .close-button {
-    position: absolute;
-    top: 12px;
-    right: 18px;
-    background: none;
-    border: none;
-    font-size: 2.2rem;
-    color: #bbb;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s;
+    position: absolute; top: 12px; right: 18px; background: none; border: none;
+    font-size: 2.2rem; color: #bbb; cursor: pointer; line-height: 1; transition: color 0.2s;
 }
-.close-button:hover {
-    color: #555;
-}
+.close-button:hover { color: #555; }
 
-/* === WIDGET BONG BÓNG CHAT === */
-#ai-chat-widget {
-    position: fixed;
-    bottom: var(--chat-offset);
-    right: var(--chat-offset);
-    z-index: 1000;
-}
+/* --- Widget Bong bóng Chat --- */
+#ai-chat-widget { position: fixed; bottom: var(--chat-offset); right: var(--chat-offset); z-index: 1000; }
 #ai-chat-bubble {
-    width: var(--chat-bubble-size);
-    height: var(--chat-bubble-size);
-    background-color: var(--chat-primary-color);
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: var(--chat-bubble-size); height: var(--chat-bubble-size);
+    background-color: var(--chat-primary-color); border-radius: 50%; border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, opacity 0.3s ease-out;
     outline: none;
 }
-#ai-chat-bubble:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-#ai-chat-bubble svg {
-    width: 50%;
-    height: 50%;
-    fill: white;
-}
+#ai-chat-bubble:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+#ai-chat-bubble svg { width: 50%; height: 50%; fill: white; }
 #ai-chat-box {
-    width: var(--chatbox-width);
-    height: var(--chatbox-height);
-    background-color: #ffffff;
-    border-radius: 15px;
+    width: var(--chatbox-width); height: var(--chatbox-height);
+    background-color: #ffffff; border-radius: 15px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    position: absolute;
-    bottom: calc(var(--chat-bubble-size) + 12px);
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    position: absolute; bottom: calc(var(--chat-bubble-size) + 12px); right: 0;
+    display: flex; flex-direction: column; overflow: hidden;
+    opacity: 0; transform: translateY(20px) scale(0.95);
     transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), visibility 0s linear 0.3s;
-    visibility: hidden;
-    pointer-events: none;
+    visibility: hidden; pointer-events: none;
 }
 #ai-chat-widget.chat-open #ai-chat-box {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    visibility: visible;
-    pointer-events: auto;
+    opacity: 1; transform: translateY(0) scale(1);
+    visibility: visible; pointer-events: auto;
     transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), visibility 0s linear 0s;
 }
-#ai-chat-widget.chat-open #ai-chat-bubble {
-    opacity: 0;
-    transform: scale(0.8);
-    pointer-events: none;
-}
-.ai-chat-header {
-    background-color: var(--chat-primary-color);
-    color: white;
-    padding: 12px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-.ai-chat-header h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
-}
-#ai-chat-close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.6rem;
-    cursor: pointer;
-    padding: 0 5px;
-    line-height: 1;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-#ai-chat-close-btn:hover {
-    opacity: 1;
-}
-.chat-messages-area {
-    flex-grow: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background-color: #f0f2f5;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.ai-message, .user-message {
-    padding: 10px 15px;
-    border-radius: 20px;
-    line-height: 1.45;
-    font-size: 0.9em;
-    max-width: 85%;
-    word-wrap: break-word;
-    box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.12);
-    position: relative;
-}
-.ai-message {
-    background-color: #e4e6eb;
-    color: #1c1e21;
-    align-self: flex-start;
-    border-bottom-left-radius: 5px;
-}
-.user-message {
-    background-color: var(--chat-primary-color);
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 5px;
-}
-.typing-indicator {
-    background-color: #e4e6eb;
-    padding: 12px 15px;
-    border-bottom-left-radius: 5px;
-    align-self: flex-start;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-}
-.typing-indicator span {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: #8a8d91;
-    margin: 0 2.5px;
-    animation: typing-blink 1.4s infinite both;
-}
+#ai-chat-widget.chat-open #ai-chat-bubble { opacity: 0; transform: scale(0.8); pointer-events: none; }
+.ai-chat-header { background-color: var(--chat-primary-color); color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.ai-chat-header h3 { margin: 0; font-size: 1rem; font-weight: 500; }
+#ai-chat-close-btn { background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer; padding: 0 5px; line-height: 1; opacity: 0.8; transition: opacity 0.2s; }
+#ai-chat-close-btn:hover { opacity: 1; }
+.chat-messages-area { flex-grow: 1; padding: 15px; overflow-y: auto; background-color: #f0f2f5; display: flex; flex-direction: column; gap: 10px; }
+.ai-message, .user-message { padding: 10px 15px; border-radius: 20px; line-height: 1.45; font-size: 0.9em; max-width: 85%; word-wrap: break-word; box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.12); position: relative; }
+.ai-message { background-color: #e4e6eb; color: #1c1e21; align-self: flex-start; border-bottom-left-radius: 5px; }
+.user-message { background-color: var(--chat-primary-color); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
+.typing-indicator { background-color: #e4e6eb; padding: 12px 15px; border-bottom-left-radius: 5px; align-self: flex-start; display: flex; align-items: center; justify-content: center; width: fit-content; }
+.typing-indicator span { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background-color: #8a8d91; margin: 0 2.5px; animation: typing-blink 1.4s infinite both; }
 .typing-indicator span:nth-child(1) { animation-delay: 0s; }
 .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
 .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typing-blink { 0%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
-#chat-input-area {
-    display: flex;
-    padding: 12px 15px;
-    border-top: 1px solid #e0e0e0;
-    background: #ffffff;
-    flex-shrink: 0;
-    align-items: center;
-}
-#user-input {
-    flex-grow: 1;
-    border: none;
-    background-color: #f0f2f5;
-    border-radius: 20px;
-    padding: 10px 18px;
-    font-size: 0.9em;
-    outline: none;
-    transition: background-color 0.2s ease;
-}
-#user-input:focus {
-    background-color: #e4e6eb;
-}
-#send-button {
-    background-color: var(--chat-primary-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    margin-left: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    transition: background-color 0.2s;
-    flex-shrink: 0;
-}
-#send-button:hover {
-    background-color: #006ddb;
-}
-#send-button svg {
-    margin-left: 2px;
-    width: 18px;
-    height: 18px;
-}
+#chat-input-area { display: flex; padding: 12px 15px; border-top: 1px solid #e0e0e0; background: #ffffff; flex-shrink: 0; align-items: center; }
+#user-input { flex-grow: 1; border: none; background-color: #f0f2f5; border-radius: 20px; padding: 10px 18px; font-size: 0.9em; outline: none; transition: background-color 0.2s ease; }
+#user-input:focus { background-color: #e4e6eb; }
+#send-button { background-color: var(--chat-primary-color); color: white; border: none; border-radius: 50%; width: 38px; height: 38px; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background-color 0.2s; flex-shrink: 0; }
+#send-button:hover { background-color: #006ddb; }
+#send-button svg { margin-left: 2px; width: 18px; height: 18px; }
 
-/* === FOOTER === */
-.main-footer {
-    height: var(--footer-height);
-    background-color: #333;
-    color: #aaa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85em;
-    /* THÊM MỚI: Giữ footer ở dưới cùng */
-    position: relative;
-    z-index: 100;
-}
-.main-footer p {
-    margin: 0;
-}
+/* --- Footer --- */
+.main-footer { height: var(--footer-height); background-color: #333; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 0.85em; }
+.main-footer p { margin: 0; }
 
-/* --- Ẩn/Hiện Widget Chat khi cuộn --- */
-#ai-chat-widget.hidden-initially {
-    opacity: 0;
-    transform: scale(0.5);
-    visibility: hidden;
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out, visibility 0s linear 0.5s;
-}
-#ai-chat-widget.is-visible {
-    opacity: 1;
-    transform: scale(1);
-    visibility: visible;
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out, visibility 0s linear 0s;
-}
-
-/* === PHẢN HỒI TRÊN DI ĐỘNG === */
+/* --- Responsive --- */
 @media (max-width: 768px) {
-    /* Header */
-    .main-header {
-        padding: 0 15px;
-        height: 50px;
-    }
+    .main-header { padding: 0 15px; height: 50px; }
     .logo { font-size: 1em; }
     .main-nav { display: none; }
-    
-    /* Container (cần padding-top vì header cố định) */
-    .scroll-container {
-        margin-top: 50px;
-    }
-
-    /* Section Sách Cũ */
-    .old-book-style h1 { font-size: 2.5em; }
-    .old-book-style .subtitle { font-size: 1.1em; }
-
-    /* Ebook Hiện Đại */
-    .modern-ebook-style .ebook-container {
-        height: 100vh;
-        width: 100%;
-        margin: 0;
-        border-radius: 0;
-    }
+    .container { height: calc(100vh - 90px); border-radius: 0; } /* Trừ header 50px + footer 40px */
+    .ebook-container { border-right: none; }
     .canva-brand-link { font-size: 10px; padding: 5px 0; }
-
-    /* Modal */
     .modal-content { padding: 25px 20px; }
     .modal-content li strong { min-width: 80px; }
-
-    /* Chat Widget */
-    :root {
-        --chat-offset: 15px;
-        --chat-bubble-size: 50px;
-        --chatbox-width: calc(100vw - 30px);
-        --chatbox-height: calc(100vh - 70px - 50px - 40px);
-    }
-    #ai-chat-box {
-        bottom: calc(var(--chat-bubble-size) + 8px);
-        right: calc(var(--chat-offset) * -1 + (100vw - var(--chatbox-width))/2);
-        border-radius: 15px;
-    }
+    :root { --chat-offset: 15px; --chat-bubble-size: 50px; --chatbox-width: calc(100vw - 30px); --chatbox-height: calc(100vh - 70px - 50px - 40px); }
+    #ai-chat-box { bottom: calc(var(--chat-bubble-size) + 8px); right: calc(var(--chat-offset) * -1 + (100vw - var(--chatbox-width))/2); border-radius: 15px; }
     .ai-chat-header { padding: 12px 15px; }
     .chat-messages-area { padding: 10px; }
     .ai-message, .user-message { font-size: 0.9em; max-width: 90%; }
@@ -572,7 +209,5 @@ body, html {
     #user-input { padding: 9px 15px; }
     #send-button { width: 36px; height: 36px; margin-left: 8px; }
     #send-button svg { width: 17px; height: 17px; }
-
-    /* Footer */
     .main-footer { height: 40px; }
 }
