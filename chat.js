@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeModalBtn = document.getElementById('close-modal-btn');
 
     // === KIỂM TRA TÍNH NĂNG VOICE CHAT ===
-    // 1. Kiểm tra Speech-to-Text (Nhận dạng giọng nói)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     let isRecording = false;
@@ -33,8 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("Trình duyệt không hỗ trợ SpeechRecognition (STT).");
         if(micButton) micButton.style.display = 'none';
     }
-    // 2. Kiểm tra Text-to-Speech (Chỉ để kiểm tra, không dùng)
-    const synthesis = window.speechSynthesis;
+    const synthesis = window.speechSynthesis; // Vẫn kiểm tra để tránh lỗi, dù không dùng
     if (!synthesis) {
         console.warn("Trình duyệt không hỗ trợ SpeechSynthesis (TTS).");
     }
@@ -83,7 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 isRecording = false;
             };
         }
-    } else { console.error("LỖI Frontend: Thiếu phần tử chat quan trọng."); }
+    } else { 
+        console.error("LỖI Frontend: Thiếu phần tử chat quan trọng. Kiểm tra lại ID trong index.html!");
+        return; // Dừng thực thi nếu thiếu phần tử chat
+    }
 
     // 2. Dropdown Menu Events
     if (dropdownElementsExist) {
@@ -158,18 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
         chatWindow.appendChild(messageElement);
         chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        /* === PHẦN ĐỌC AI ĐÃ BỊ TẮT ===
-        if (sender === 'ai' && synthesis && textContentForTTS) {
-            try {
-                if (synthesis.speaking) { synthesis.cancel(); }
-                const utterance = new SpeechSynthesisUtterance(textContentForTTS);
-                utterance.lang = 'vi-VN';
-                // ... (code tìm giọng đọc) ...
-                synthesis.speak(utterance);
-            } catch (ttsError) { console.error("Lỗi Text-to-Speech:", ttsError); }
-        }
-        */
+        
+        // (Phần code TTS đã bị xóa)
     }
 
     function showTypingIndicator() {
