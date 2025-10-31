@@ -1,4 +1,4 @@
-// File: chat.js (ở thư mục GỐC)
+// File: chat.js (ở thư mục GỐC) - Hoàn chỉnh (Đã TẮT TTS)
 document.addEventListener("DOMContentLoaded", () => {
 
     // === LẤY CÁC PHẦN TỬ DOM ===
@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBubble = document.getElementById('ai-chat-bubble');
     const chatBox = document.getElementById('ai-chat-box');
     const closeChatBtn = document.getElementById('ai-chat-close-btn');
+    const micButton = document.getElementById("mic-button");
     // Dropdown
     const dropdownBtns = document.querySelectorAll('.main-nav .dropbtn');
     const canvaIframe = document.querySelector('.canva-iframe-fix');
@@ -19,11 +20,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const contactModal = document.getElementById('contact-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
 
-    // === KIỂM TRA PHẦN TỬ DOM (Để tránh lỗi nếu HTML thay đổi) ===
-    function checkElements(...elements) {
-        return elements.every(el => el !== null);
+    // === KIỂM TRA TÍNH NĂNG VOICE CHAT ===
+    // 1. Kiểm tra Speech-to-Text (Nhận dạng giọng nói)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isRecording = false;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'vi-VN';
+        recognition.interimResults = false;
+    } else {
+        console.warn("Trình duyệt không hỗ trợ SpeechRecognition (STT).");
+        if(micButton) micButton.style.display = 'none';
     }
-    const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn);
+    // 2. Kiểm tra Text-to-Speech (Chỉ để kiểm tra, không dùng)
+    const synthesis = window.speechSynthesis;
+    if (!synthesis) {
+        console.warn("Trình duyệt không hỗ trợ SpeechSynthesis (TTS).");
+    }
+
+    // === KIỂM TRA CÁC PHẦN TỬ DOM KHÁC ===
+    function checkElements(...elements) { return elements.every(el => el !== null); }
+    const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn, micButton);
     const dropdownElementsExist = dropdownBtns.length > 0 && canvaIframe && canvaBrandLink;
     const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn);
 
@@ -32,14 +50,40 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. Chatbot Events
     if (essentialChatElementsExist) {
         sendButton.addEventListener("click", sendMessage);
-        userInput.addEventListener("keypress", (event) => {
-            if (event.key === "Enter") { event.preventDefault(); sendMessage(); }
-        });
+        userInput.addEventListener("keypress", (event) => { if (event.key === "Enter") { event.preventDefault(); sendMessage(); } });
         chatBubble.addEventListener('click', toggleChatBox);
         closeChatBtn.addEventListener('click', toggleChatBox);
-    } else {
-        console.error("LỖI Frontend: Thiếu phần tử chat quan trọng.");
-    }
+
+        if (micButton && recognition) {
+            micButton.addEventListener("click", () => {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    try { recognition.start(); }
+                    catch (error) {
+                        console.error("Lỗi khi bắt đầu ghi âm:", error);
+                        addMessage("Không thể bắt đầu ghi âm. Vui lòng thử lại.", "ai");
+                        isRecording = false; micButton.classList.remove("is-recording"); micButton.textContent = '🎙️';
+                    }
+                }
+            });
+            recognition.onstart = () => { isRecording = true; micButton.classList.add("is-recording"); micButton.textContent = '...'; };
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                setTimeout(sendMessage, 50);
+            };
+            recognition.onend = () => { isRecording = false; micButton.classList.remove("is-recording"); micButton.textContent = '🎙️'; };
+            recognition.onerror = (event) => {
+                console.error("Lỗi SpeechRecognition:", event.error);
+                let errorMessage = event.error;
+                if (event.error === 'not-allowed') { errorMessage = "Bạn chưa cấp quyền sử dụng micro."; }
+                else if (event.error === 'no-speech') { errorMessage = "Không nghe thấy giọng nói."; }
+                addMessage(`Lỗi giọng nói: ${errorMessage}`, "ai");
+                isRecording = false;
+            };
+        }
+    } else { console.error("LỖI Frontend: Thiếu phần tử chat quan trọng."); }
 
     // 2. Dropdown Menu Events
     if (dropdownElementsExist) {
@@ -49,11 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const content = this.nextElementSibling;
                 const parentDropdown = this.parentElement;
                 const isOpen = content.classList.contains('show');
-                closeAllDropdowns(); // Luôn đóng cái khác trước
-                if (!isOpen) { // Chỉ mở nếu nó đang đóng
-                    content.classList.add('show');
-                    parentDropdown.classList.add('open');
-                }
+                closeAllDropdowns();
+                if (!isOpen) { content.classList.add('show'); parentDropdown.classList.add('open'); }
             });
         });
         document.querySelectorAll('.main-nav .dropdown-content a').forEach(link => {
@@ -65,39 +106,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 closeAllDropdowns();
             });
         });
-        // Đóng dropdown khi click ra ngoài
-        window.addEventListener('click', (event) => {
-             if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) {
-                closeAllDropdowns();
-            }
-        });
-    } else {
-        console.warn("CẢNH BÁO: Thiếu phần tử dropdown hoặc iframe.");
-    }
+        window.addEventListener('click', (event) => { if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) { closeAllDropdowns(); } });
+    } else { console.warn("CẢNH BÁO: Thiếu phần tử dropdown hoặc iframe."); }
 
     // 3. Contact Modal Events
     if (modalElementsExist) {
-        contactLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            contactModal.classList.add('show');
-        });
-        closeModalBtn.addEventListener('click', () => {
-            contactModal.classList.remove('show');
-        });
-        contactModal.addEventListener('click', (event) => {
-            if (event.target === contactModal) {
-                contactModal.classList.remove('show');
-            }
-        });
-         // Đóng modal bằng phím Escape
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && contactModal.classList.contains('show')) {
-                 contactModal.classList.remove('show');
-            }
-        });
-    } else {
-        console.warn("CẢNH BÁO: Thiếu phần tử modal liên hệ.");
-    }
+        contactLink.addEventListener('click', (event) => { event.preventDefault(); contactModal.classList.add('show'); });
+        closeModalBtn.addEventListener('click', () => { contactModal.classList.remove('show'); });
+        contactModal.addEventListener('click', (event) => { if (event.target === contactModal) { contactModal.classList.remove('show'); } });
+        window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && contactModal.classList.contains('show')) { contactModal.classList.remove('show'); } });
+    } else { console.warn("CẢNH BÁO: Thiếu phần tử modal liên hệ."); }
 
     // === CÁC HÀM XỬ LÝ (HELPER FUNCTIONS) ===
 
@@ -110,8 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userInput.value = "";
         showTypingIndicator();
         try {
-            // Gọi Backend Gemini
-            const response = await fetch('/api/gemini-handler', {
+            const response = await fetch('/api/gemini-handler', { // Endpoint backend Gemini
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question: question })
@@ -126,15 +143,35 @@ document.addEventListener("DOMContentLoaded", () => {
             addMessage(`Xin lỗi, đã xảy ra sự cố: ${error.message}`, "ai");
         }
     }
+
+    // HÀM THÊM TIN NHẮN (ĐÃ TẮT TTS)
     function addMessage(message, sender) {
         if (!chatWindow) return;
         const messageElement = document.createElement("p");
         messageElement.className = sender === "user" ? "user-message" : "ai-message";
-        if (sender === 'user') { messageElement.textContent = message; }
-        else { messageElement.innerHTML = message ? message.replace(/\n/g, '<br>') : '[AI không trả lời]'; }
+        
+        if (sender === 'user') {
+            messageElement.textContent = message;
+        } else {
+            messageElement.innerHTML = message ? message.replace(/\n/g, '<br>') : '[AI không trả lời]';
+        }
+        
         chatWindow.appendChild(messageElement);
         chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        /* === PHẦN ĐỌC AI ĐÃ BỊ TẮT ===
+        if (sender === 'ai' && synthesis && textContentForTTS) {
+            try {
+                if (synthesis.speaking) { synthesis.cancel(); }
+                const utterance = new SpeechSynthesisUtterance(textContentForTTS);
+                utterance.lang = 'vi-VN';
+                // ... (code tìm giọng đọc) ...
+                synthesis.speak(utterance);
+            } catch (ttsError) { console.error("Lỗi Text-to-Speech:", ttsError); }
+        }
+        */
     }
+
     function showTypingIndicator() {
         if (document.getElementById("typing-indicator") || !chatWindow) return;
         const typingIndicator = document.createElement("p");
@@ -153,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const isOpen = chatWidget.classList.toggle('chat-open');
         if (isOpen) {
             requestAnimationFrame(() => {
-                 setTimeout(() => userInput.focus(), 0);
+                 setTimeout(() => userInput.focus(), 50);
             });
         }
     }
@@ -171,15 +208,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function loadCanvaContent(newUrl, newText) {
          if (canvaIframe && newUrl && newUrl !== '#') {
             console.log("Đang tải Canva:", newUrl);
-            canvaIframe.src = newUrl; // Thay đổi link src của iframe
+            canvaIframe.src = newUrl;
             if (canvaBrandLink) {
                  try {
                      let designId = new URLSearchParams(new URL(newUrl).search).get('designId');
                      if (!designId) {
                          const pathParts = new URL(newUrl).pathname.split('/');
-                         if (pathParts[1] === 'design' && pathParts[2]) {
-                            designId = pathParts[2];
-                         }
+                         if (pathParts[1] === 'design' && pathParts[2]) { designId = pathParts[2]; }
                      }
                      if (designId) {
                          canvaBrandLink.href = `https://www.canva.com/design/${designId}/view?utm_content=${designId}&utm_campaign=designshare&utm_medium=embeds&utm_source=link`;
@@ -194,9 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       canvaBrandLink.href = "#";
                  }
             }
-        } else {
-            console.warn("URL Canva không hợp lệ hoặc iframe không tồn tại:", newUrl);
-        }
+        } else { console.warn("URL Canva không hợp lệ hoặc iframe không tồn tại:", newUrl); }
     }
 
 }); // Kết thúc DOMContentLoaded
