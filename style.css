@@ -91,6 +91,60 @@ body, html {
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
+/* --- Menu Hamburger (Ẩn trên Desktop) --- */
+#hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 102;
+}
+#hamburger-btn span {
+    width: 100%;
+    height: 3px;
+    background-color: #333;
+    border-radius: 2px;
+    transition: all 0.3s ease-in-out;
+}
+/* Menu Di động (Ẩn ban đầu) */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(5px);
+    z-index: 101;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: var(--header-height);
+}
+.mobile-nav-link {
+    font-size: 1.5rem;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 15px 0;
+    width: 80%;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+.mobile-nav-link:hover { color: var(--chat-primary-color); }
+/* Hiệu ứng Mở Menu (JS sẽ thêm class 'is-active') */
+.mobile-nav.is-active { display: flex; }
+#hamburger-btn.is-active span:nth-child(1) { transform: translateY(11px) rotate(45deg); }
+#hamburger-btn.is-active span:nth-child(2) { opacity: 0; }
+#hamburger-btn.is-active span:nth-child(3) { transform: translateY(-11px) rotate(-45deg); }
+
+
 /* --- Container chính (Chỉ Ebook) --- */
 .container {
     display: block;
@@ -218,9 +272,14 @@ body, html {
     /* Header */
     .main-header { padding: 0 15px; height: 50px; }
     .logo { font-size: 1em; }
+    /* Ẩn menu desktop trên di động */
     .main-nav { display: none; }
+    /* Hiện nút hamburger trên di động */
+    #hamburger-btn { display: flex; }
+    /* Điều chỉnh chiều cao menu di động */
+    .mobile-nav { padding-top: 50px; }
     /* Container (Ebook) */
-    .container { height: calc(100vh - 90px); border-radius: 0; }
+    .container { height: calc(100vh - 90px); border-radius: 0; } /* Trừ header 50px + footer 40px */
     .ebook-container { border-right: none; }
     .canva-brand-link { font-size: 10px; padding: 5px 0; }
     /* Modal */

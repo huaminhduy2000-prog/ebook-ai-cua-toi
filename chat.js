@@ -1,4 +1,4 @@
-// File: chat.js (ở thư mục GỐC) - Hoàn chỉnh (Đã TẮT TTS)
+// File: chat.js (ở thư mục GỐC) - Hoàn chỉnh (TẮT TTS, CÓ HAMBURGER)
 document.addEventListener("DOMContentLoaded", () => {
 
     // === LẤY CÁC PHẦN TỬ DOM ===
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBox = document.getElementById('ai-chat-box');
     const closeChatBtn = document.getElementById('ai-chat-close-btn');
     const micButton = document.getElementById("mic-button");
-    // Dropdown
+    // Dropdown Desktop
     const dropdownBtns = document.querySelectorAll('.main-nav .dropbtn');
     const canvaIframe = document.querySelector('.canva-iframe-fix');
     const canvaBrandLink = document.querySelector('.canva-brand-link');
@@ -19,6 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const contactLink = document.getElementById('contact-link');
     const contactModal = document.getElementById('contact-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
+    // Menu Di động (Hamburger)
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    const contactLinkMobile = document.getElementById('contact-link-mobile');
 
     // === KIỂM TRA TÍNH NĂNG VOICE CHAT ===
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -41,7 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function checkElements(...elements) { return elements.every(el => el !== null); }
     const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn, micButton);
     const dropdownElementsExist = dropdownBtns.length > 0 && canvaIframe && canvaBrandLink;
-    const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn);
+    const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn, contactLinkMobile); // Thêm contactLinkMobile
+    const hamburgerElementsExist = checkElements(hamburgerBtn, mobileNav, mobileNavLinks, contactLinkMobile);
 
     // === GẮN SỰ KIỆN (EVENT LISTENERS) ===
 
@@ -81,12 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 isRecording = false;
             };
         }
-    } else { 
-        console.error("LỖI Frontend: Thiếu phần tử chat quan trọng. Kiểm tra lại ID trong index.html!");
-        return; // Dừng thực thi nếu thiếu phần tử chat
-    }
+    } else { console.error("LỖI Frontend: Thiếu phần tử chat quan trọng."); }
 
-    // 2. Dropdown Menu Events
+    // 2. Dropdown Menu Events (Desktop)
     if (dropdownElementsExist) {
         dropdownBtns.forEach(btn => {
             btn.addEventListener('click', function(event) {
@@ -110,13 +113,44 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener('click', (event) => { if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) { closeAllDropdowns(); } });
     } else { console.warn("CẢNH BÁO: Thiếu phần tử dropdown hoặc iframe."); }
 
-    // 3. Contact Modal Events
+    // 3. Contact Modal Events (Desktop)
     if (modalElementsExist) {
         contactLink.addEventListener('click', (event) => { event.preventDefault(); contactModal.classList.add('show'); });
         closeModalBtn.addEventListener('click', () => { contactModal.classList.remove('show'); });
         contactModal.addEventListener('click', (event) => { if (event.target === contactModal) { contactModal.classList.remove('show'); } });
         window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && contactModal.classList.contains('show')) { contactModal.classList.remove('show'); } });
     } else { console.warn("CẢNH BÁO: Thiếu phần tử modal liên hệ."); }
+
+    // 4. Hamburger Menu Events (Mobile)
+    if (hamburgerElementsExist) {
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('is-active');
+            mobileNav.classList.toggle('is-active');
+        });
+
+        mobileNavLinks.forEach(link => {
+            if (link.hasAttribute('data-content-url')) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const newUrl = this.getAttribute('data-content-url');
+                    const newText = this.textContent;
+                    loadCanvaContent(newUrl, newText);
+                    hamburgerBtn.classList.remove('is-active');
+                    mobileNav.classList.remove('is-active');
+                });
+            }
+        });
+
+        if (contactLinkMobile && contactModal) {
+             contactLinkMobile.addEventListener('click', (event) => {
+                event.preventDefault();
+                contactModal.classList.add('show');
+                hamburgerBtn.classList.remove('is-active');
+                mobileNav.classList.remove('is-active');
+            });
+        }
+    } else { console.warn("CẢNH BÁO: Thiếu phần tử menu di động (hamburger)."); }
+
 
     // === CÁC HÀM XỬ LÝ (HELPER FUNCTIONS) ===
 

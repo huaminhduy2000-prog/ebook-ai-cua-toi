@@ -4,20 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebook Vật Lý Của Tôi</title>
+    <title>Ebook Vật Lý AI Của Tôi</title>
 
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png"> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <header class="main-header">
         <div class="logo">EBOOK VẬT LÝ AI</div>
+        
         <nav class="main-nav">
             <div class="dropdown">
                 <button class="dropbtn">Chương <span class="arrow">&#9662;</span></button>
                 <div class="dropdown-content">
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed">Trang Mặc định</a>
                     <a href="#" data-content-url="https://www.canva.com/design/DAG2nT4oNW0/50hBgMMhCPZFqp4ag2590Q/view?embed">Chương 1</a>
                     <a href="#" data-content-url="https://www.canva.com/design/DAG22cESWa0/2RGetXkut7dhLt0nSZnJWA/view?embed">Chương 2</a>
                 </div>
@@ -30,8 +31,22 @@
             </div>
             <a href="#" id="contact-link">Liên hệ</a>
         </nav>
+
+        <button id="hamburger-btn" aria-label="Mở menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
     </header>
 
+    <nav id="mobile-nav" class="mobile-nav">
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed">Trang Mặc định</a>
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG2nT4oNW0/50hBgMMhCPZFqp4ag2590Q/view?embed">Chương 1</a>
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG22cESWa0/2RGetXkut7dhLt0nSZnJWA/view?embed">Chương 2</a>
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG2n8idgZs/cP0daDGYjsE6q3oaR-RXPg/view?embed">Bài tập Chương 1</a>
+        <a href="#" id="contact-link-mobile" class="mobile-nav-link">Liên hệ</a>
+    </nav>
     <div class="container">
         <div class="ebook-container">
             <iframe class="canva-iframe-fix"
@@ -42,7 +57,6 @@
                 title="Ebook Content">
             </iframe>
             <a class="canva-brand-link" href="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?utm_content=DAG1iqLNUEc&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">
-                Ebook and Chatbox AI của Minh Hua
             </a>
         </div>
     </div> <div id="contact-modal" class="modal-overlay">
@@ -54,6 +68,7 @@
                 <li><strong>Số điện thoại:</strong> <a href="tel:0918678616">0918678616</a></li>
                 <li><strong>Email:</strong> <a href="mailto:huaduyminh2007@gmail.com">huaduyminh2007@gmail.com</a></li>
                 <li><strong>Zalo:</strong> 0819670487</li>
+                <li><strong>Giảng viên hướng dẫn:</strong> Nguyễn Đăng Nhật</li>
             </ul>
         </div>
     </div> <footer class="main-footer">
