@@ -1,192 +1,200 @@
+// File: chat.js (ở thư mục GỐC) - Bản ổn định
 document.addEventListener("DOMContentLoaded", () => {
-    
-    // --- 1. CẤU HÌNH & BIẾN ---
-    const CONFIG = {
-        apiEndpoint: '/api/gemini-handler',
-        defaultEbook: 'https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed',
-        defaultTitle: 'Ebook và Chatbot AI của Minh Hua'
-    };
 
-    // --- 2. DOM ELEMENTS ---
-    const dom = {
-        iframe: document.getElementById('ebook-frame'),
-        ebookTitle: document.getElementById('ebook-title'),
-        chatBox: document.getElementById('chat-box'),
-        chatToggleBtn: document.getElementById('chat-toggle-btn'),
-        chatCloseBtn: document.getElementById('chat-close-btn'),
-        chatMessages: document.getElementById('chat-messages'),
-        chatInput: document.getElementById('chat-input'),
-        sendBtn: document.getElementById('send-btn'),
-        micBtn: document.getElementById('mic-btn'),
-        links: document.querySelectorAll('a[data-src]'),
-        contactLinks: document.querySelectorAll('[id^="contact-link"]'),
-        modal: document.getElementById('contact-modal'),
-        modalClose: document.querySelector('.close-btn'),
-        hamburger: document.getElementById('hamburger-btn'),
-        mobileMenu: document.getElementById('mobile-menu-overlay')
-    };
+    // === LẤY CÁC PHẦN TỬ DOM ===
+    // Chatbot
+    const sendButton = document.getElementById("send-button");
+    const userInput = document.getElementById("user-input");
+    const chatWindow = document.getElementById("chat-window");
+    const chatWidget = document.getElementById('ai-chat-widget');
+    const chatBubble = document.getElementById('ai-chat-bubble');
+    const chatBox = document.getElementById('ai-chat-box');
+    const closeChatBtn = document.getElementById('ai-chat-close-btn');
+    const micButton = document.getElementById("mic-button");
+    // Dropdown
+    const dropdownBtns = document.querySelectorAll('.main-nav .dropbtn');
+    const canvaIframe = document.querySelector('.canva-iframe-fix');
+    const canvaBrandLink = document.querySelector('.canva-brand-link');
+    // Modal
+    const contactLink = document.getElementById('contact-link');
+    const contactModal = document.getElementById('contact-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    // Hamburger
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileNav = document.getElementById('mobile-nav');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    const contactLinkMobile = document.getElementById('contact-link-mobile');
 
-    // --- 3. XỬ LÝ ĐIỀU HƯỚNG EBOOK ---
-    function loadEbook(url) {
-        if (!url) return;
-        dom.iframe.src = url;
-        
-        // Cập nhật tiêu đề footer (tùy chọn logic nâng cao để lấy tên)
-        // Ở đây giữ đơn giản
-    }
-
-    dom.links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const url = link.getAttribute('data-src');
-            const title = link.textContent;
-            
-            loadEbook(url);
-            dom.ebookTitle.textContent = `${title} - Minh Hua`;
-            
-            // Đóng menu mobile nếu đang mở
-            if (dom.mobileMenu.classList.contains('active')) {
-                dom.mobileMenu.classList.remove('active');
-            }
-        });
-    });
-
-    // --- 4. CHATBOT LOGIC ---
-    
-    // Mở/Đóng Chat
-    function toggleChat() {
-        dom.chatBox.classList.toggle('hidden');
-        if (!dom.chatBox.classList.contains('hidden')) {
-            setTimeout(() => dom.chatInput.focus(), 100); // Focus input khi mở
-        }
-    }
-    dom.chatToggleBtn.addEventListener('click', toggleChat);
-    dom.chatCloseBtn.addEventListener('click', toggleChat);
-
-    // Thêm tin nhắn vào giao diện
-    function appendMessage(text, sender) {
-        const div = document.createElement('div');
-        div.className = `message ${sender}-message`;
-        // Xử lý xuống dòng cho AI
-        div.innerHTML = sender === 'ai' ? text.replace(/\n/g, '<br>') : text;
-        dom.chatMessages.appendChild(div);
-        dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
-    }
-
-    // Hiển thị "Đang gõ..."
-    function showTyping() {
-        const div = document.createElement('div');
-        div.className = 'typing-indicator';
-        div.id = 'typing';
-        div.textContent = 'AI đang suy nghĩ...';
-        dom.chatMessages.appendChild(div);
-        dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
-    }
-
-    function removeTyping() {
-        const typing = document.getElementById('typing');
-        if (typing) typing.remove();
-    }
-
-    // Gửi tin nhắn đến API
-    async function handleSend() {
-        const text = dom.chatInput.value.trim();
-        if (!text) return;
-
-        // UI cập nhật
-        appendMessage(text, 'user');
-        dom.chatInput.value = '';
-        showTyping();
-
-        try {
-            const response = await fetch(CONFIG.apiEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: text })
-            });
-
-            const data = await response.json();
-            removeTyping();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Lỗi máy chủ');
-            }
-
-            appendMessage(data.answer, 'ai');
-
-        } catch (error) {
-            console.error("Lỗi Chat:", error);
-            removeTyping();
-            appendMessage(`Lỗi: ${error.message}. Vui lòng thử lại.`, 'ai');
-        }
-    }
-
-    dom.sendBtn.addEventListener('click', handleSend);
-    dom.chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSend();
-    });
-
-    // --- 5. VOICE CHAT (STT Only) ---
+    // === KIỂM TRA TÍNH NĂNG VOICE CHAT ===
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+    let recognition = null;
+    let isRecording = false;
     if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
+        recognition = new SpeechRecognition();
         recognition.lang = 'vi-VN';
         recognition.interimResults = false;
-
-        dom.micBtn.addEventListener('click', () => {
-            if (dom.micBtn.classList.contains('listening')) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
-        });
-
-        recognition.onstart = () => {
-            dom.micBtn.classList.add('listening');
-        };
-
-        recognition.onend = () => {
-            dom.micBtn.classList.remove('listening');
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            dom.chatInput.value = transcript;
-            handleSend(); // Tự động gửi sau khi nói xong
-        };
-
-        recognition.onerror = (event) => {
-            console.error("Lỗi Mic:", event.error);
-            dom.micBtn.classList.remove('listening');
-            appendMessage(`(Lỗi Micro: ${event.error})`, 'ai');
-        };
     } else {
-        console.warn("Trình duyệt không hỗ trợ Web Speech API");
-        dom.micBtn.style.display = 'none';
+        console.warn("Trình duyệt không hỗ trợ SpeechRecognition (STT).");
+        if(micButton) micButton.style.display = 'none';
     }
 
-    // --- 6. MODAL LIÊN HỆ ---
-    dom.contactLinks.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            dom.modal.classList.add('active');
-            // Đóng menu mobile nếu đang mở
-            dom.mobileMenu.classList.remove('active');
+    // === KIỂM TRA DOM ===
+    function checkElements(...elements) { return elements.every(el => el !== null); }
+    const essentialChatElementsExist = checkElements(sendButton, userInput, chatWindow, chatWidget, chatBubble, chatBox, closeChatBtn, micButton);
+    const dropdownElementsExist = dropdownBtns.length > 0 && canvaIframe && canvaBrandLink;
+    const modalElementsExist = checkElements(contactLink, contactModal, closeModalBtn);
+    const hamburgerElementsExist = checkElements(hamburgerBtn, mobileNav, mobileNavLinks, contactLinkMobile);
+
+    // === GẮN SỰ KIỆN ===
+
+    // 1. Chatbot
+    if (essentialChatElementsExist) {
+        sendButton.addEventListener("click", sendMessage);
+        userInput.addEventListener("keypress", (event) => { if (event.key === "Enter") { event.preventDefault(); sendMessage(); } });
+        chatBubble.addEventListener('click', toggleChatBox);
+        closeChatBtn.addEventListener('click', toggleChatBox);
+
+        if (micButton && recognition) {
+            micButton.addEventListener("click", () => {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    try { recognition.start(); }
+                    catch (error) {
+                        console.error("Lỗi ghi âm:", error);
+                        isRecording = false; micButton.classList.remove("is-recording"); micButton.textContent = '🎙️';
+                    }
+                }
+            });
+            recognition.onstart = () => { isRecording = true; micButton.classList.add("is-recording"); micButton.textContent = '...'; };
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                setTimeout(sendMessage, 50);
+            };
+            recognition.onend = () => { isRecording = false; micButton.classList.remove("is-recording"); micButton.textContent = '🎙️'; };
+            recognition.onerror = (event) => { console.error("Lỗi STT:", event.error); isRecording = false; };
+        }
+    }
+
+    // 2. Dropdown
+    if (dropdownElementsExist) {
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const content = this.nextElementSibling;
+                const parentDropdown = this.parentElement;
+                const isOpen = content.classList.contains('show');
+                closeAllDropdowns();
+                if (!isOpen) { content.classList.add('show'); parentDropdown.classList.add('open'); }
+            });
         });
-    });
+        document.querySelectorAll('.main-nav .dropdown-content a').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                loadCanvaContent(this.getAttribute('data-content-url'), this.textContent);
+                closeAllDropdowns();
+            });
+        });
+        window.addEventListener('click', (event) => { if (!event.target.matches('.main-nav .dropbtn, .main-nav .dropbtn *')) { closeAllDropdowns(); } });
+    }
 
-    dom.modalClose.addEventListener('click', () => {
-        dom.modal.classList.remove('active');
-    });
+    // 3. Modal
+    if (modalElementsExist) {
+        contactLink.addEventListener('click', (event) => { event.preventDefault(); contactModal.classList.add('show'); });
+        closeModalBtn.addEventListener('click', () => { contactModal.classList.remove('show'); });
+        contactModal.addEventListener('click', (event) => { if (event.target === contactModal) { contactModal.classList.remove('show'); } });
+    }
 
-    dom.modal.addEventListener('click', (e) => {
-        if (e.target === dom.modal) dom.modal.classList.remove('active');
-    });
+    // 4. Hamburger
+    if (hamburgerElementsExist) {
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('is-active');
+            mobileNav.classList.toggle('is-active');
+        });
+        mobileNavLinks.forEach(link => {
+            if (link.hasAttribute('data-content-url')) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    loadCanvaContent(this.getAttribute('data-content-url'), this.textContent);
+                    hamburgerBtn.classList.remove('is-active'); mobileNav.classList.remove('is-active');
+                });
+            }
+        });
+        if (contactLinkMobile && contactModal) {
+             contactLinkMobile.addEventListener('click', (event) => {
+                event.preventDefault(); contactModal.classList.add('show');
+                hamburgerBtn.classList.remove('is-active'); mobileNav.classList.remove('is-active');
+            });
+        }
+    }
 
-    // --- 7. MOBILE MENU ---
-    dom.hamburger.addEventListener('click', () => {
-        dom.mobileMenu.classList.toggle('active');
-    });
+    // === HÀM XỬ LÝ ===
+    async function sendMessage() {
+        if (!userInput) return;
+        let question = userInput.value.trim();
+        if (question === "") return;
+        addMessage(question, "user");
+        userInput.value = "";
+        showTypingIndicator();
+        try {
+            const response = await fetch('/api/gemini-handler', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: question })
+            });
+            const data = await response.json();
+            if (!response.ok) { throw new Error(data.error || `Lỗi: ${response.status}`); }
+            removeTypingIndicator();
+            addMessage(data.answer, "ai");
+        } catch (error) {
+            console.error("Lỗi API:", error);
+            removeTypingIndicator();
+            addMessage(`Lỗi: ${error.message}`, "ai");
+        }
+    }
 
+    function addMessage(message, sender) {
+        if (!chatWindow) return;
+        const messageElement = document.createElement("p");
+        messageElement.className = sender === "user" ? "user-message" : "ai-message";
+        if (sender === 'user') { messageElement.textContent = message; }
+        else { messageElement.innerHTML = message ? message.replace(/\n/g, '<br>') : '...'; }
+        chatWindow.appendChild(messageElement);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        if (document.getElementById("typing-indicator") || !chatWindow) return;
+        const typingIndicator = document.createElement("p");
+        typingIndicator.className = "ai-message typing-indicator";
+        typingIndicator.id = "typing-indicator";
+        typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+        chatWindow.appendChild(typingIndicator);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+    function removeTypingIndicator() {
+        const indicator = document.getElementById("typing-indicator");
+        if (indicator && chatWindow) { chatWindow.removeChild(indicator); }
+    }
+    function toggleChatBox() {
+        if (!chatWidget) return;
+        const isOpen = chatWidget.classList.toggle('chat-open');
+        if (isOpen) { requestAnimationFrame(() => { setTimeout(() => userInput.focus(), 50); }); }
+    }
+    function closeAllDropdowns() {
+        document.querySelectorAll('.main-nav .dropdown-content.show').forEach(open => {
+            open.classList.remove('show');
+            open.closest('.dropdown')?.classList.remove('open');
+        });
+    }
+    function loadCanvaContent(newUrl, newText) {
+         if (canvaIframe && newUrl) {
+            canvaIframe.src = newUrl;
+            if (canvaBrandLink) {
+                canvaBrandLink.textContent = `${newText} - Minh Hua`;
+                canvaBrandLink.href = "#";
+            }
+        }
+    }
 });
