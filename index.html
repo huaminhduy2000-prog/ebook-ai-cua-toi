@@ -1,136 +1,127 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebook Vật Lý AI - Học Tập Tương Tác</title>
-    <meta name="description" content="Nền tảng Ebook Vật lý tương tác tích hợp trợ lý ảo AI và mô phỏng thí nghiệm.">
+    <title>Ebook Vật Lý AI Của Tôi</title>
 
-    <link rel="icon" type="image/png" href="favicon.png">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    
+    <link rel="icon" type="image/png" href="favicon.png"> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
+<body>
     <header class="main-header">
         <div class="logo">EBOOK VẬT LÝ AI</div>
         
         <nav class="main-nav">
             <div class="dropdown">
-                <button class="dropbtn">Chương <span class="arrow">▾</span></button>
+                <button class="dropbtn">Chương <span class="arrow">&#9662;</span></button>
                 <div class="dropdown-content">
-                    <a href="#" data-src="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed">Trang Mặc định</a>
-                    <a href="#" data-src="https://www.canva.com/design/DAG2nT4oNW0/50hBgMMhCPZFqp4ag2590Q/view?embed">Chương 1: Ném Xiên</a>
-                    <a href="#" data-src="https://www.canva.com/design/DAG22cESWa0/2RGetXkut7dhLt0nSZnJWA/view?embed">Chương 2: Động Lực Học</a>
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed">Trang Mặc định</a>
+                    
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG6KtWi_dA/oHhwh6EOCs3fS9rSmmuwiQ/view?embed">Khái quát vật lý đại cương</a>
+                    
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG2nT4oNW0/50hBgMMhCPZFqp4ag2590Q/view?embed">Chương 1</a>
+                    
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG22cESWa0/2RGetXkut7dhLt0nSZnJWA/view?embed">Chương 2</a>
                 </div>
-            </div>
-            <div class="dropdown">
-                <button class="dropbtn">Bài tập <span class="arrow">▾</span></button>
-                <div class="dropdown-content">
-                    <a href="#" data-src="https://www.canva.com/design/DAG2n8idgZs/cP0daDGYjsE6q3oaR-RXPg/view?embed">Bài tập Chương 1</a>
-                    <a href="#" data-src="LINK_CANVA_BAITAP_2">Bài tập Chương 2</a>
-                </div>
-            </div>
-            <a href="#" id="contact-link" class="nav-link">Liên hệ</a>
-        </nav>
-
-        <button id="hamburger-btn" aria-label="Menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </header>
-
-    <div id="mobile-menu-overlay">
-        <nav class="mobile-nav">
-            <a href="#" class="mobile-link" data-src="https://www.canva.com/design/DAG2nT4oNW0/50hBgMMhCPZFqp4ag2590Q/view?embed">Chương 1</a>
-            <a href="#" class="mobile-link" data-src="https://www.canva.com/design/DAG22cESWa0/2RGetXkut7dhLt0nSZnJWA/view?embed">Chương 2</a>
-            <a href="#" class="mobile-link" data-src="https://www.canva.com/design/DAG2n8idgZs/cP0daDGYjsE6q3oaR-RXPg/view?embed">Bài tập C1</a>
-            <a href="#" id="contact-link-mobile" class="mobile-link">Liên hệ</a>
-        </nav>
-    </div>
-
-    <main class="container">
-        <div class="ebook-wrapper">
-            <div class="iframe-container">
-                <iframe 
-                    id="ebook-frame"
-                    loading="lazy"
-                    src="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed"
-                    allowfullscreen="allowfullscreen" 
-                    allow="fullscreen"
-                    title="Nội dung Ebook">
-                </iframe>
-            </div>
-            <div class="ebook-footer">
-                <span id="ebook-title">Ebook và Chatbot AI của Minh Hua</span>
-            </div>
-        </div>
-    </main>
-
-    <footer class="main-footer">
-        <p>&copy; 2025 Ebook AI. Phát triển bởi <strong>Minh Hua</strong>.</p>
-    </footer>
-
-    <div id="contact-modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-btn" aria-label="Đóng">&times;</button>
-            <h2>Thông tin liên hệ</h2>
-            <div class="contact-info">
-                <p><strong>Tên:</strong> Hứa Duy Minh</p>
-                <p><strong>SĐT:</strong> <a href="tel:0918678616">0918678616</a></p>
-                <p><strong>Email:</strong> <a href="mailto:huaduyminh2007@gmail.com">huaduyminh2007@gmail.com</a></p>
-                <p><strong>Zalo:</strong> 0819670487</p>
-                <p><strong>GVHD:</strong> Nguyễn Đăng Nhật</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="chatbot-widget">
-        <button id="chat-toggle-btn" aria-label="Chat với AI">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
-            </svg>
-        </button>
-
-        <div id="chat-box" class="hidden">
-            <div class="chat-header">
-                <div class="header-title">
-                    <span class="bot-avatar">🤖</span>
-                    <h3>AI Trợ Giảng</h3>
-                </div>
-                <button id="chat-close-btn">&times;</button>
             </div>
             
-            <div id="chat-messages">
-                <div class="message ai-message">
-                    Chào bạn! Mình là trợ lý AI. Bạn cần giải đáp gì về bài học không?
+            <div class="dropdown">
+                <button class="dropbtn">Bài tập <span class="arrow">&#9662;</span></button>
+                <div class="dropdown-content">
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG2n8idgZs/cP0daDGYjsE6q3oaR-RXPg/view?embed">Bài tập Chương 1</a>
+                    
+                    <a href="#" data-content-url="https://www.canva.com/design/DAG6FXSlHLg/yAI17-ygMaMC3iGy1isf2Q/view?embed">Các bài tập hay</a>
                 </div>
             </div>
+            
+            <a href="#" id="contact-link">Liên hệ</a>
+        </nav>
 
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Hỏi gì đó..." autocomplete="off">
-                <div class="input-actions">
-                    <button id="mic-btn" aria-label="Nói">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                        </svg>
-                    </button>
-                    <button id="send-btn" aria-label="Gửi">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2 .01 7z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+        <button id="hamburger-btn" aria-label="Mở menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+    </header>
+
+    <nav id="mobile-nav" class="mobile-nav">
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed">Trang Mặc định</a>
+        
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG6KtWi_dA/oHhwh6EOCs3fS9rSmmuwiQ/view?embed">Khái quát vật lý đại cương</a>
+        
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG2nT4oNW0/50hBgMMhCPZFqp4ag2590Q/view?embed">Chương 1</a>
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG22cESWa0/2RGetXkut7dhLt0nSZnJWA/view?embed">Chương 2</a>
+        
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG2n8idgZs/cP0daDGYjsE6q3oaR-RXPg/view?embed">Bài tập Chương 1</a>
+        
+        <a href="#" class="mobile-nav-link" data-content-url="https://www.canva.com/design/DAG6FXSlHLg/yAI17-ygMaMC3iGy1isf2Q/view?embed">Các bài tập hay</a>
+        
+        <a href="#" id="contact-link-mobile" class="mobile-nav-link">Liên hệ</a>
+    </nav>
+
+
+    <div class="container">
+        <div class="ebook-container">
+            <iframe class="canva-iframe-fix"
+                loading="lazy"
+                src="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?embed"
+                allowfullscreen="allowfullscreen"
+                allow="fullscreen"
+                title="Ebook Content">
+            </iframe>
+            <a class="canva-brand-link" href="https://www.canva.com/design/DAG1iqLNUEc/rfbuWms06Wuo5RPlkSY0dA/view?utm_content=DAG1iqLNUEc&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">
+                Ebook and Chatbox AI của Minh Hua
+            </a>
         </div>
-    </div>
+    </div> <div id="contact-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal-btn" class="close-button" aria-label="Đóng">&times;</button>
+            <h2>Thông tin liên hệ</h2>
+            <ul>
+                <li><strong>Tên:</strong> Hứa Duy Minh</li>
+                <li><strong>Số điện thoại:</strong> <a href="tel:0918678616">0918678616</a></li>
+                <li><strong>Email:</strong> <a href="mailto:huaduyminh2007@gmail.com">huaduyminh2007@gmail.com</a></li>
+                <li><strong>Zalo:</strong> 0819670487</li>
+                <li><strong>Giảng viên hướng dẫn:</strong> Nguyễn Đăng Nhật</li>
+            </ul>
+        </div>
+    </div> <footer class="main-footer">
+        <p>© 2025 Ebook AI. Phát triển bởi Minh Hua.</p>
+    </footer>
 
-    <script src="chat.js"></script>
+    <div id="ai-chat-widget">
+        <button id="ai-chat-bubble" aria-label="Mở AI Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+            </svg>
+        </button>
+        <div id="ai-chat-box">
+            <div class="ai-chat-header">
+                <h3>AI Trợ Giảng</h3>
+                <button id="ai-chat-close-btn" aria-label="Đóng Chat">&times;</button>
+            </div>
+            <div id="chat-window" class="chat-messages-area">
+                <p class="ai-message">Chào bạn! Cần tôi giúp gì hôm nay?</p>
+            </div>
+            
+            <div id="chat-input-area">
+                <input type="text" id="user-input" placeholder="Hỏi AI...">
+                
+                <button id="mic-button" aria-label="Nói">🎙️</button>
+                
+                <button id="send-button" aria-label="Gửi">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18px" height="18px">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2 .01 7z"/>
+                    </svg>
+                </button>
+            </div>
+            
+        </div>
+    </div> <script src="chat.js"></script>
+
 </body>
 </html>
