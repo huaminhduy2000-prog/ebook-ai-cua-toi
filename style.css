@@ -5,18 +5,21 @@
     --chatbox-width: 320px;
     --chatbox-height: 400px;
     --chat-offset: 25px;
-    --header-height: 60px;
+    --header-height: 60px; /* Chiều cao Header máy tính */
     --footer-height: 40px;
 }
+
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
+    /* Ngăn cuộn trang chính để tạo cảm giác giống App */
+    overflow: hidden; 
     font-family: 'Roboto', Arial, sans-serif;
     background-color: #f4f7f6;
     font-size: 16px;
-    scroll-behavior: smooth;
 }
+
 * {
     box-sizing: border-box;
 }
@@ -34,14 +37,16 @@ body, html {
     position: relative;
     z-index: 100;
 }
+
 .logo {
     font-size: 1.25em;
     font-weight: 700;
     color: #333;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    padding: 0 10px;
 }
+
+/* Menu Desktop */
 .main-nav { display: flex; align-items: center; }
 .main-nav a, .dropbtn {
     margin-left: 15px;
@@ -55,6 +60,7 @@ body, html {
     transition: color 0.2s, background-color 0.2s;
 }
 .main-nav a:hover, .dropbtn:hover { color: #1a73e8; background-color: #f0f0f0;}
+
 .dropbtn {
     background-color: transparent;
     border: none;
@@ -63,7 +69,9 @@ body, html {
     align-items: center;
 }
 .dropbtn .arrow { margin-left: 5px; font-size: 0.7em; transition: transform 0.2s ease-in-out; }
+
 .dropdown { position: relative; display: inline-block; }
+
 .dropdown-content {
     display: none;
     position: absolute;
@@ -91,9 +99,9 @@ body, html {
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- Menu Hamburger --- */
+/* --- Menu Hamburger (Nút 3 gạch) --- */
 #hamburger-btn {
-    display: none;
+    display: none; /* Ẩn trên máy tính */
     flex-direction: column;
     justify-content: space-around;
     width: 30px;
@@ -102,7 +110,7 @@ body, html {
     border: none;
     cursor: pointer;
     padding: 0;
-    z-index: 102;
+    z-index: 200; /* Cao hơn nav */
 }
 #hamburger-btn span {
     width: 100%;
@@ -111,34 +119,38 @@ body, html {
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
 }
-/* Menu Di động */
+
+/* Menu Di động (Danh sách sổ xuống) */
 .mobile-nav {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh; /* Full màn hình */
     background-color: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(5px);
-    z-index: 101;
+    z-index: 150;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding-top: var(--header-height);
+    justify-content: flex-start; /* Căn từ trên xuống */
+    padding-top: 80px; /* Cách đỉnh để không đè nút X */
+    transition: opacity 0.3s;
 }
 .mobile-nav-link {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: #333;
     text-decoration: none;
     font-weight: 500;
-    padding: 15px 0;
+    padding: 20px 0;
     width: 80%;
     text-align: center;
     border-bottom: 1px solid #eee;
 }
 .mobile-nav-link:hover { color: var(--chat-primary-color); }
 .mobile-nav.is-active { display: flex; }
+
+/* Hiệu ứng nút Hamburger khi mở */
 #hamburger-btn.is-active span:nth-child(1) { transform: translateY(11px) rotate(45deg); }
 #hamburger-btn.is-active span:nth-child(2) { opacity: 0; }
 #hamburger-btn.is-active span:nth-child(3) { transform: translateY(-11px) rotate(-45deg); }
@@ -146,12 +158,14 @@ body, html {
 /* --- Container chính --- */
 .container {
     display: block;
+    /* FIX LỖI TRÀN MÀN HÌNH: Dùng dvh để trừ đúng thanh địa chỉ */
     height: calc(100vh - var(--header-height) - var(--footer-height));
+    height: calc(100dvh - var(--header-height) - var(--footer-height)); 
     max-width: 1800px;
     margin: 0 auto;
     box-shadow: 0 4px 25px rgba(0,0,0,0.08);
     overflow: hidden;
-    border-radius: 10px;
+    border-radius: 0; /* Bỏ bo góc để full màn hình đẹp hơn */
     background-color: #fff;
     position: relative;
 }
@@ -235,27 +249,14 @@ body, html {
 #chat-input-area { display: flex; padding: 12px 15px; border-top: 1px solid #e0e0e0; background: #ffffff; flex-shrink: 0; align-items: center; }
 #user-input { flex-grow: 1; border: none; background-color: #f0f2f5; border-radius: 20px; padding: 10px 18px; font-size: 0.9em; outline: none; transition: background-color 0.2s ease; }
 #user-input:focus { background-color: #e4e6eb; }
-/* Nút Micro */
 #mic-button {
-    background-color: #f0f2f5;
-    color: #555;
-    border: none;
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    margin-left: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3em;
-    transition: background-color 0.2s, color 0.2s;
-    flex-shrink: 0;
-    padding: 0;
+    background-color: #f0f2f5; color: #555; border: none; border-radius: 50%;
+    width: 38px; height: 38px; margin-left: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3em; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0;
 }
 #mic-button:hover { background-color: #e4e6eb; }
 #mic-button.is-recording { background-color: #ff4136; color: white; }
-/* Nút Gửi */
 #send-button { background-color: var(--chat-primary-color); color: white; border: none; border-radius: 50%; width: 38px; height: 38px; margin-left: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background-color 0.2s; flex-shrink: 0; }
 #send-button:hover { background-color: #006ddb; }
 #send-button svg { margin-left: 2px; width: 18px; height: 18px; }
@@ -264,19 +265,48 @@ body, html {
 .main-footer { height: var(--footer-height); background-color: #333; color: #aaa; display: flex; align-items: center; justify-content: center; font-size: 0.85em; }
 .main-footer p { margin: 0; }
 
-/* --- Responsive --- */
+/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
-    .main-header { padding: 0 15px; height: 50px; }
+    /* Đặt lại biến chiều cao header cho Mobile */
+    :root { 
+        --header-height: 50px; 
+    }
+
+    .main-header { padding: 0 15px; height: var(--header-height); }
     .logo { font-size: 1em; }
+    
+    /* Ẩn menu desktop */
     .main-nav { display: none; }
-    .container { height: calc(100vh - 90px); border-radius: 0; }
+    
+    /* HIỆN NÚT HAMBURGER (Sửa lỗi mất menu) */
+    #hamburger-btn { display: flex; }
+
+    /* Container vừa khít màn hình, trừ đi header và footer */
+    .container { 
+        height: calc(100vh - 50px - 40px); /* Fallback */
+        height: calc(100dvh - 50px - 40px); /* Fix lỗi thanh địa chỉ che */
+        border-radius: 0; 
+    }
     .ebook-container { border-right: none; }
     .canva-brand-link { font-size: 10px; padding: 5px 0; }
+
+    /* Modal */
     .modal-content { padding: 25px 20px; }
     .modal-content li strong { min-width: 80px; }
-    /* Chat Widget */
-    :root { --chat-offset: 15px; --chat-bubble-size: 50px; --chatbox-width: calc(100vw - 30px); --chatbox-height: calc(100vh - 70px - 50px - 40px); }
-    #ai-chat-box { bottom: calc(var(--chat-bubble-size) + 8px); right: calc(var(--chat-offset) * -1 + (100vw - var(--chatbox-width))/2); border-radius: 15px; }
+
+    /* Chat Widget Mobile */
+    :root { 
+        --chat-offset: 15px; 
+        --chat-bubble-size: 50px; 
+        --chatbox-width: calc(100vw - 30px); 
+        /* Chiều cao chatbox: 100vh trừ đi các phần thừa để không bị tràn */
+        --chatbox-height: calc(100dvh - 150px); 
+    }
+    #ai-chat-box { 
+        bottom: calc(var(--chat-bubble-size) + 8px); 
+        right: calc(var(--chat-offset) * -1 + (100vw - var(--chatbox-width))/2); 
+        border-radius: 15px; 
+    }
     .ai-chat-header { padding: 12px 15px; }
     .chat-messages-area { padding: 10px; }
     .ai-message, .user-message { font-size: 0.9em; max-width: 90%; }
@@ -285,5 +315,6 @@ body, html {
     #mic-button { width: 36px; height: 36px; margin-left: 5px; font-size: 1.2em;}
     #send-button { width: 36px; height: 36px; margin-left: 5px; }
     #send-button svg { width: 17px; height: 17px; }
+    
     .main-footer { height: 40px; }
 }
